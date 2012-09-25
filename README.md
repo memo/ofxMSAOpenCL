@@ -23,7 +23,8 @@ none
 
 Compatibility
 ------------
-OF0072
+openFrameworks 0072  
+I am generally testing only with [openFrameworks](www.openframeworks.cc), however it should work with [Cinder](www.libcinder.org) too. If it doesn't, please file an issue.
 
 
 Known issues
