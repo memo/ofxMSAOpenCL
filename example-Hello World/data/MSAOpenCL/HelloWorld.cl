@@ -11,7 +11,7 @@ __kernel void square(__global float *a, __global float *result) {
 }
 
 //--------------------------------------------------------------
-__kernel void multiplyScaler(__global float *a, __global float b, __global float *result) {
+__kernel void multiplyScaler(__global float *a, float b, __global float *result) {
 	int gid = get_global_id(0);
 	result[gid] = a[gid] * b;
 }
