@@ -17,6 +17,9 @@ Installation
 ------------
 Copy to your openFrameworks/addons folder.
 
+I've had some problems on 10.8 with OpenCL. I've had to install these drivers [www.nvidia.com/object/cuda-mac-driver.html](http://www.nvidia.com/object/cuda-mac-driver.html) for my graphics card to work.
+
+
 Dependencies
 ------------
 none
