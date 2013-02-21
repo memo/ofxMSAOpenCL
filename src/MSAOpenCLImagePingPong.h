@@ -15,32 +15,32 @@ namespace msa {
 		}
 		
 		cl_mem &getCLMem() {
-			return getFront().getCLMem();
+			return getTarget().getCLMem();
 		}
 		
 		operator OpenCLImage&() {
-			return getFront();
+			return getTarget();
 		}
 		
 		
 		void draw(int x, int y) {
-			getFront().draw(x, y);
+			getTarget().draw(x, y);
 		}
 		
 		void draw(int x, int y, int w, int h) {
-			getFront().draw(x, y, w, h);
+			getTarget().draw(x, y, w, h);
 		}
 		
 		int getWidth() {
-			return getFront().getWidth();
+			return getTarget().getWidth();
 		}
 		
 		int getHeight() {
-			return getFront().getHeight();
+			return getTarget().getHeight();
 		}
 		
 		int getDepth() {
-			return getFront().getDepth();
+			return getTarget().getDepth();
 		}
 		
 		void reset() {
@@ -57,7 +57,7 @@ namespace msa {
 				  size_t *pRegion = NULL,
 				  size_t rowPitch = 0,
 				  size_t slicePitch = 0) {
-			getFront().read(dataPtr, blockingRead, pOrigin, pRegion, rowPitch, slicePitch);
+			getTarget().read(dataPtr, blockingRead, pOrigin, pRegion, rowPitch, slicePitch);
 		}
 		
 		// write from main memory (dataPtr), into device memory
@@ -68,7 +68,7 @@ namespace msa {
 				   size_t *pRegion = NULL,
 				   size_t rowPitch = 0,
 				   size_t slicePitch = 0) {
-			getFront().write(dataPtr, blockingWrite, pOrigin, pRegion, rowPitch, slicePitch);
+			getTarget().write(dataPtr, blockingWrite, pOrigin, pRegion, rowPitch, slicePitch);
 		}
 		
 		
@@ -78,7 +78,7 @@ namespace msa {
 					  size_t *pSrcOrigin = NULL, 
 					  size_t *pDstOrigin = NULL, 
 					  size_t *pRegion = NULL) {
-			getFront().copyFrom(srcImage, pSrcOrigin, pDstOrigin, pRegion);
+			getTarget().copyFrom(srcImage, pSrcOrigin, pDstOrigin, pRegion);
 		}
 	};
 	
