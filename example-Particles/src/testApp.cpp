@@ -91,8 +91,8 @@ void testApp::setup(){
 
 //--------------------------------------------------------------
 void testApp::update(){
-	mousePos.x = mouseX;
-	mousePos.y = mouseY;
+	mousePos.x = ofGetMouseX();
+	mousePos.y = ofGetMouseY();
 	dimensions.x = ofGetWidth();
 	dimensions.y = ofGetHeight();
 	
