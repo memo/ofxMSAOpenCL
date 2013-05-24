@@ -22,7 +22,14 @@ I've had some problems on 10.8 with OpenCL. I've had to install these drivers [w
 
 Dependencies
 ------------
-none
+
+### Windows / NVidia
+
+* CUDA SDK [https://developer.nvidia.com/cuda-downloads]
+
+### Examples
+
+Some examples also require [ofxMSATimer]{https://github.com/memo/ofxMSATimer}
 
 Compatibility
 ------------
