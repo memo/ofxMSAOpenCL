@@ -23,6 +23,8 @@ I've had some problems on 10.8 with OpenCL. I've had to install these drivers [w
 Dependencies
 ------------
 
+* [ofxMSAPingPing]{https://github.com/memo/ofxMSAPingPong}
+
 ### Windows / NVidia
 
 * CUDA SDK [https://developer.nvidia.com/cuda-downloads]
