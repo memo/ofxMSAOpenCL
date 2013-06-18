@@ -176,7 +176,7 @@ namespace msa {
 	
 	OpenCLImage* OpenCL::createImage3D(int width, int height, int depth, cl_channel_order imageChannelOrder, cl_channel_type imageChannelDataType, cl_mem_flags memFlags, void *dataPtr, bool blockingWrite) {
 		OpenCLImage *clImage = new OpenCLImage();
-		clImage->initWithoutTexture(width, height, height, imageChannelOrder, imageChannelDataType, memFlags, dataPtr, blockingWrite);
+		clImage->initWithoutTexture(width, height, depth, imageChannelOrder, imageChannelDataType, memFlags, dataPtr, blockingWrite);
 		memObjects.push_back(clImage);
 		return clImage;
 	}
