@@ -202,13 +202,37 @@ namespace msa {
 		cl_int err;
 		cl_uint numDevicesFound;
 		
-		err = clGetDeviceIDs(NULL, clDeviceType, numDevices, &clDevice, &numDevicesFound);
-		if(err != CL_SUCCESS) {
+		cl_platform_id platformIdBuffer[100];
+		cl_uint numPlatforms=0;
+
+		//	windows AMD sdk/ati radeon driver implementation doesn't accept NULL as a platform ID, so fetch it first
+		err = clGetPlatformIDs(	sizeof(platformIdBuffer)/sizeof(platformIdBuffer[0]), platformIdBuffer, &numPlatforms );
+
+		//	error fetching platforms... try NULL anyway
+		if ( err != CL_SUCCESS || numPlatforms == 0 )
+		{
+			platformIdBuffer[0] = NULL;
+			numPlatforms = 1;
+		}
+
+		//	find first successfull platform
+		for ( int p=0;	p<numPlatforms;	p++ )
+		{
+			cl_platform_id platformId = platformIdBuffer[p];
+			err = clGetDeviceIDs(platformId, clDeviceType, numDevices, &clDevice, &numDevicesFound);
+			if ( err != CL_SUCCESS )
+				continue;
+		}
+
+		ofLog(OF_LOG_VERBOSE, ofToString(numDevicesFound, 0) + " devices found, on " + ofToString(numPlatforms, 0) + " platforms\n");
+
+		//	no platforms worked
+		if ( err != CL_SUCCESS )
+		{
 			ofLog(OF_LOG_ERROR, "Error creating clDevice.");
 			assert(false);
+			return 0;
 		}	
-		
-		ofLog(OF_LOG_VERBOSE, ofToString(numDevicesFound, 0) + " devices found\n");
 		
 		int numDevicesToUse = min((int)numDevicesFound, numDevices);
 		
