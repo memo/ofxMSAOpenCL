@@ -30,10 +30,11 @@ namespace msa {
 		//	void setArg(int argNumber, int i);
 		
 		template<class T>
-		void setArg(int argNumber, T &arg){
+		bool setArg(int argNumber, T &arg){
 			//		ofLog(OF_LOG_VERBOSE, "OpenCLKernel::setArg " + name + ": " + ofToString(argNumber));	
-			
 			assert(clKernel);
+			if ( !clKernel )
+				return false;
 			
 			cl_int err  = clSetKernelArg(clKernel, argNumber, sizeof(T), &arg);
 			assert(err != CL_INVALID_KERNEL);
@@ -43,6 +44,7 @@ namespace msa {
 			assert(err != CL_INVALID_SAMPLER);
 			assert(err != CL_INVALID_ARG_SIZE);
 			assert(err == CL_SUCCESS);
+			return (err==CL_SUCCESS);
 		}
 		
 		// run the kernel
