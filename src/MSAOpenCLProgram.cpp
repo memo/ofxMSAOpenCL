@@ -121,14 +121,20 @@ namespace msa {
 			assert(false); 
 		}	
 		
-		cl_int err = clBuildProgram(clProgram, 0, NULL, NULL, NULL, NULL);
+		string Options;
+		Options += "-I \"" + ofToDataPath("") + "\" ";
+		cl_int err = clBuildProgram(clProgram, 0, NULL, Options.c_str(), NULL, NULL);
 		if(err != CL_SUCCESS) {
-			size_t len;
-			char buffer[2048];
-			
 			ofLog(OF_LOG_ERROR, "\n\n ***** Error building program. ***** \n ***********************************\n\n");
-			clGetProgramBuildInfo(clProgram, pOpenCL->getDevice(), CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
-			ofLog(OF_LOG_ERROR, buffer);
+			//	get build log size first so we always have errors to display 
+			size_t len = 0;
+			int BuildInfoErr = clGetProgramBuildInfo(clProgram, pOpenCL->getDevice(), CL_PROGRAM_BUILD_LOG, 0, NULL, &len );
+			vector<char> buffer( len+1 );
+			BuildInfoErr = clGetProgramBuildInfo(clProgram, pOpenCL->getDevice(), CL_PROGRAM_BUILD_LOG, buffer.size(), &buffer.at(0), NULL );
+			buffer[len] = '\0';
+			
+			const char* bufferString = &buffer[0];
+			ofLog(OF_LOG_ERROR, bufferString );
 			assert(false);
 		}	
 	}
