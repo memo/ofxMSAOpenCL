@@ -22,8 +22,9 @@ namespace msa {
 		clFinish(clQueue);
 		
 		for(int i=0; i<memObjects.size(); i++) delete memObjects[i];	// FIX
-		for(map<string, OpenCLKernel*>::iterator it = kernels.begin(); it !=kernels.end(); ++it) delete (OpenCLKernel*)it->second;
-		for(int i=0; i<programs.size(); i++) delete programs[i];
+		for(auto it = kernels.begin(); it !=kernels.end(); ++it) it->second.reset();
+		for(int i=0; i<programs.size(); i++) programs[i].reset();
+
 		clReleaseCommandQueue(clQueue);
 		clReleaseContext(clContext);
 	}
@@ -111,28 +112,28 @@ namespace msa {
 	
 	
 	
-	OpenCLProgram* OpenCL::loadProgramFromFile(string filename, bool isBinary) { 
+	std::shared_ptr<OpenCLProgram>  OpenCL::loadProgramFromFile(string filename, bool isBinary) {
 		ofLog(OF_LOG_VERBOSE, "OpenCL::loadProgramFromFile");
-		OpenCLProgram *p = new OpenCLProgram();
+		std::shared_ptr<OpenCLProgram> p = std::shared_ptr<OpenCLProgram> (new OpenCLProgram());
 		p->loadFromFile(filename, isBinary);
 		programs.push_back(p);
 		return p;
 	}
 	
 	
-	OpenCLProgram* OpenCL::loadProgramFromSource(string source) {
+	std::shared_ptr<OpenCLProgram>  OpenCL::loadProgramFromSource(string source) {
 		ofLog(OF_LOG_VERBOSE, "OpenCL::loadProgramFromSource");
-		OpenCLProgram *p = new OpenCLProgram();
+		std::shared_ptr<OpenCLProgram> p = std::shared_ptr<OpenCLProgram> (new OpenCLProgram());
 		p->loadFromSource(source);
 		programs.push_back(p);
 		return p;
 	} 
 	
 	
-	OpenCLKernel* OpenCL::loadKernel(string kernelName, OpenCLProgram *program) {
-		ofLog(OF_LOG_VERBOSE, "OpenCL::loadKernel " + kernelName + ", " + ofToString((int)program));
-		if(program == NULL) program = programs[programs.size() - 1];
-		OpenCLKernel *k = program->loadKernel(kernelName);
+	std::shared_ptr<OpenCLKernel> OpenCL::loadKernel(string kernelName, std::shared_ptr<OpenCLProgram> program) {
+		ofLog(OF_LOG_VERBOSE, "OpenCL::loadKernel " + kernelName + ", " + ofToString((int)program.get()));
+		if(program.get() == NULL) program = programs[programs.size() - 1];
+		std::shared_ptr<OpenCLKernel> k = program->loadKernel(kernelName);
 		kernels[kernelName] = k;
 		return k;
 	}
@@ -183,8 +184,14 @@ namespace msa {
 	
 	
 	
-	OpenCLKernel* OpenCL::kernel(string kernelName) {
-		return kernels[kernelName];
+	std::shared_ptr<OpenCLKernel> OpenCL::kernel(string kernelName) {
+		// todo: check if kernel could be found.
+		if (kernels.find(kernelName) != kernels.end()) {
+			return kernels[kernelName];
+		} else {
+			ofLogError() << "Could not find kernel with name: " << kernelName;
+			return std::shared_ptr<OpenCLKernel>();	// return empty shared ptr.
+		}
 	}
 	
 	void OpenCL::flush() {

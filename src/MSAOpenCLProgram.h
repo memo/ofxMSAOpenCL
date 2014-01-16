@@ -16,7 +16,7 @@ namespace msa {
 		void loadFromFile(string filename, bool isBinary = false);
 		void loadFromSource(string source);
 		
-		OpenCLKernel* loadKernel(string kernelName);
+		std::shared_ptr<OpenCLKernel> loadKernel(string kernelName);
 		
 		void getBinary();
 		

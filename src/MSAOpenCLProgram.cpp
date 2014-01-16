@@ -9,7 +9,6 @@ namespace msa {
 	
 	OpenCLProgram::OpenCLProgram() {
 		ofLog(OF_LOG_VERBOSE, "OpenCLProgram::OpenCLProgram");
-		this->pOpenCL = pOpenCL;
 		pOpenCL = NULL;
 		clProgram = NULL;
 	}
@@ -17,7 +16,8 @@ namespace msa {
 	
 	OpenCLProgram::~OpenCLProgram() {
 		ofLog(OF_LOG_VERBOSE, "OpenCLProgram::~OpenCLProgram");
-		//	clReleaseProgram(clProgram);		// this crashes it for some reason
+		pOpenCL->finish();	// tig: make sure all CL ops have ended before dropping the program.
+		if (clProgram != NULL) clReleaseProgram(clProgram);
 	}
 	
 	
@@ -61,13 +61,13 @@ namespace msa {
 	} 
 	
 	
-	OpenCLKernel* OpenCLProgram::loadKernel(string kernelName) {
+	std::shared_ptr<OpenCLKernel> OpenCLProgram::loadKernel(string kernelName) {
 		ofLog(OF_LOG_VERBOSE, "OpenCLProgram::loadKernel " + kernelName);
 		assert(clProgram);
 		
 		cl_int err;
 		
-		OpenCLKernel *k = new OpenCLKernel(pOpenCL, clCreateKernel(clProgram, kernelName.c_str(), &err), kernelName);
+		std::shared_ptr<OpenCLKernel>k = std::shared_ptr<OpenCLKernel>(new OpenCLKernel(pOpenCL, clCreateKernel(clProgram, kernelName.c_str(), &err), kernelName));
 		
 		if(err != CL_SUCCESS) {
 			ofLog(OF_LOG_ERROR, string("Error creating kernel: ") + kernelName);

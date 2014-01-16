@@ -37,14 +37,13 @@ namespace msa {
 		
 		// load a program (contains a bunch of kernels)
 		// returns pointer to the program should you need it (for most operations you won't need this)
-		OpenCLProgram*	loadProgramFromFile(string filename, bool isBinary = false);
-		OpenCLProgram*	loadProgramFromSource(string programSource);
-		
+		std::shared_ptr<OpenCLProgram> 	loadProgramFromFile(string filename, bool isBinary = false);
+		std::shared_ptr<OpenCLProgram> 	loadProgramFromSource(string programSource);
 		
 		// specify a kernel to load from the specified program
 		// if you leave the program parameter blank it will use the last loaded program
 		// returns pointer to the kernel should you need it (for most operations you won't need this)
-		OpenCLKernel*	loadKernel(string kernelName, OpenCLProgram *program = NULL);
+		std::shared_ptr<OpenCLKernel>	loadKernel(string kernelName, std::shared_ptr<OpenCLProgram> program = std::shared_ptr<OpenCLProgram>());
 		
 		
 		
@@ -105,14 +104,19 @@ namespace msa {
 		
 		
 		// retrieve kernel so you can run it or setup params etc.
-		OpenCLKernel*	kernel(string kernelName);
+		std::shared_ptr<OpenCLKernel>	kernel(string kernelName);
 		
 		
-		vector<OpenCLProgram*>	getPrograms() {
+		vector<std::shared_ptr<OpenCLProgram> >	getPrograms() {
 			return programs;
 		}
 		
-		map<string, OpenCLKernel*>	getKernels() {
+		// will delete any programs and release their GPU resources & kernels.
+		void clearPrograms(){
+			programs.clear();
+		}
+		
+		map<string, std::shared_ptr<OpenCLKernel> >	getKernels() {
 			return kernels;
 		}
 		
@@ -158,10 +162,10 @@ namespace msa {
 		cl_context						clContext;
 		cl_command_queue				clQueue;
 		
-		vector<OpenCLProgram*>		programs;	
-		map<string, OpenCLKernel*>	kernels;
-		vector<OpenCLMemoryObject*>	memObjects;
-		bool							isSetup;
+		vector<std::shared_ptr<OpenCLProgram> >		programs;
+		map<string, std::shared_ptr<OpenCLKernel> >	kernels;
+		vector<OpenCLMemoryObject*>					memObjects;
+		bool										isSetup;
 		
 		int createDevice(int clDeviceType, int numDevices);
 		void createQueue();
