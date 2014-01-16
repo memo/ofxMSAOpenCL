@@ -32,7 +32,7 @@ namespace msa {
 		template<class T>
 		bool setArg(int argNumber, T &arg){
 			//		ofLog(OF_LOG_VERBOSE, "OpenCLKernel::setArg " + name + ": " + ofToString(argNumber));	
-			assert(clKernel);
+//			assert(clKernel);
 			if ( !clKernel )
 				return false;
 			

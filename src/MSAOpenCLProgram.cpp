@@ -71,7 +71,7 @@ namespace msa {
 		
 		if(err != CL_SUCCESS) {
 			ofLog(OF_LOG_ERROR, string("Error creating kernel: ") + kernelName);
-			assert(false);
+//			assert(false);
 		}
 		
 		return k;
@@ -136,8 +136,8 @@ namespace msa {
 			
 			const char* bufferString = &buffer[0];
 			ofLog(OF_LOG_ERROR, bufferString );
-			assert(false);
-		}	
+//			assert(false);
+		}
 	}
 	
 	cl_program& OpenCLProgram::getCLProgram(){

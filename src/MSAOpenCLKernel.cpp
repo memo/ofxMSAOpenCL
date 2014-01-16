@@ -27,7 +27,8 @@ namespace msa {
 	 }*/
 	
 	void OpenCLKernel::run(int numDimensions, size_t *globalSize, size_t *localSize) {
-		assert(clKernel);
+//		assert(clKernel);
+		if (clKernel== NULL) return false;
 		
 		cl_int err;
 		
