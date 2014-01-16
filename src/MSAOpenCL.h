@@ -7,7 +7,7 @@
 #include "MSAOpenCLBuffer.h"
 #include "MSAOpenCLTypes.h"
 #include "MSAOpenCLImage.h"
-#include "MSAOpenCLImagePingPong.h"
+//#include "MSAOpenCLImagePingPong.h"
 
 namespace msa {
 	
