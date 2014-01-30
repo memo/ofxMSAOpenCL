@@ -15,7 +15,11 @@
 #pragma once
 
 #include "ofMain.h"
-#include <OpenCL/Opencl.h>
+#ifdef __APPLE__
+	#include <OpenCL/Opencl.h>
+#else
+	#include <CL/opencl.h>
+#endif
 #include "MSAOpenCLMemoryObject.h"
 
 

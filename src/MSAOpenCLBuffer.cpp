@@ -3,7 +3,8 @@
 
 namespace msa {
 	
-	OpenCLBuffer::OpenCLBuffer() {
+	OpenCLBuffer::OpenCLBuffer()
+		: hasCorrespondingGLObject(false) {
 		ofLog(OF_LOG_VERBOSE, "OpenCLBuffer::OpenCLBuffer");
 	}
 	
@@ -41,6 +42,8 @@ namespace msa {
 		assert(err != CL_OUT_OF_HOST_MEMORY);
 		assert(err == CL_SUCCESS);
 		assert(clMemObject);	
+
+		hasCorrespondingGLObject = true;
 	}
 	
 	

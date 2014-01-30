@@ -1,13 +1,21 @@
 #pragma once
 
 #include "ofMain.h"
-#include <OpenCL/Opencl.h>
+#ifdef __APPLE__
+	#include <OpenCL/Opencl.h>
+#else
+	#include <CL/opencl.h>
+	#include <assert.h>
+#endif
+
 #include "MSAOpenCLKernel.h"
 #include "MSAOpenCLProgram.h"
 #include "MSAOpenCLBuffer.h"
 #include "MSAOpenCLTypes.h"
 #include "MSAOpenCLImage.h"
 //#include "MSAOpenCLImagePingPong.h"
+
+
 
 namespace msa {
 	
@@ -159,6 +167,7 @@ namespace msa {
 	protected:	
 		
 		cl_device_id					clDevice;
+		cl_platform_id					mPlatformID;
 		cl_context						clContext;
 		cl_command_queue				clQueue;
 		

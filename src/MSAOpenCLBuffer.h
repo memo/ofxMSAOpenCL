@@ -14,7 +14,11 @@
 #pragma once
 
 #include "ofMain.h"
-#include <OpenCL/Opencl.h>
+#ifdef __APPLE__
+	#include <OpenCL/Opencl.h>
+#else
+	#include <CL/opencl.h>
+#endif
 #include "MSAOpenCLMemoryObject.h"
 
 namespace msa {
@@ -61,5 +65,10 @@ namespace msa {
 		//	int numberOfBytes;		//dont know how big it is if we pass in globject ?
 		
 		void init();
+	private:
+		bool hasCorrespondingGLObject;
+	
+		friend class OpenCLKernel;
+
 	};
 }

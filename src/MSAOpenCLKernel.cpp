@@ -2,64 +2,167 @@
 #include "MSAOpenCLKernel.h"
 
 namespace msa { 
-	
+
 	OpenCLKernel::OpenCLKernel(OpenCL* pOpenCL, cl_kernel clKernel, string name) {
 		ofLog(OF_LOG_VERBOSE, "OpenCLKernel::OpenCLKernel " + ofToString((int)pOpenCL) + ", " + name);
 		this->pOpenCL	= pOpenCL;
 		this->name		= name;
 		this->clKernel	= clKernel;
 	}
-	
-	
+
+	// ----------------------------------------------------------------------
+
 	OpenCLKernel::~OpenCLKernel() {
 		ofLog(OF_LOG_VERBOSE, "OpenCLKernel::~OpenCLKernel " + name);
 		clReleaseKernel(clKernel);
 	}
-	
-	/*
-	 void OpenCLKernel::setArg(int argNumber, cl_mem clMem) {
-	 ofLog(OF_LOG_VERBOSE, "OpenCLKernel::setArg " + name + ": " + ofToString(argNumber));	
-	 
-	 assert(clKernel);
-	 
-	 cl_int err  = clSetKernelArg(clKernel, argNumber, sizeof(cl_mem), &clMem);
-	 assert(err == CL_SUCCESS);
-	 }*/
-	
-	void OpenCLKernel::run(int numDimensions, size_t *globalSize, size_t *localSize) {
-//		assert(clKernel);
-		if (clKernel== NULL) return false;
-		
-		cl_int err;
-		
-		//	size_t localSize = MIN(n, info.maxWorkGroupSize);
-		
-		err = clEnqueueNDRangeKernel(pOpenCL->getQueue(), clKernel, numDimensions, NULL, globalSize, localSize, 0, NULL, NULL);
-		assert(err == CL_SUCCESS);
+
+	// ----------------------------------------------------------------------
+
+
+	const string getCLErrorString(cl_int error)
+	{
+		static const string errorString[] = {
+			"CL_SUCCESS",
+			"CL_DEVICE_NOT_FOUND",
+			"CL_DEVICE_NOT_AVAILABLE",
+			"CL_COMPILER_NOT_AVAILABLE",
+			"CL_MEM_OBJECT_ALLOCATION_FAILURE",
+			"CL_OUT_OF_RESOURCES",
+			"CL_OUT_OF_HOST_MEMORY",
+			"CL_PROFILING_INFO_NOT_AVAILABLE",
+			"CL_MEM_COPY_OVERLAP",
+			"CL_IMAGE_FORMAT_MISMATCH",
+			"CL_IMAGE_FORMAT_NOT_SUPPORTED",
+			"CL_BUILD_PROGRAM_FAILURE",
+			"CL_MAP_FAILURE",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"CL_INVALID_VALUE",
+			"CL_INVALID_DEVICE_TYPE",
+			"CL_INVALID_PLATFORM",
+			"CL_INVALID_DEVICE",
+			"CL_INVALID_CONTEXT",
+			"CL_INVALID_QUEUE_PROPERTIES",
+			"CL_INVALID_COMMAND_QUEUE",
+			"CL_INVALID_HOST_PTR",
+			"CL_INVALID_MEM_OBJECT",
+			"CL_INVALID_IMAGE_FORMAT_DESCRIPTOR",
+			"CL_INVALID_IMAGE_SIZE",
+			"CL_INVALID_SAMPLER",
+			"CL_INVALID_BINARY",
+			"CL_INVALID_BUILD_OPTIONS",
+			"CL_INVALID_PROGRAM",
+			"CL_INVALID_PROGRAM_EXECUTABLE",
+			"CL_INVALID_KERNEL_NAME",
+			"CL_INVALID_KERNEL_DEFINITION",
+			"CL_INVALID_KERNEL",
+			"CL_INVALID_ARG_INDEX",
+			"CL_INVALID_ARG_VALUE",
+			"CL_INVALID_ARG_SIZE",
+			"CL_INVALID_KERNEL_ARGS",
+			"CL_INVALID_WORK_DIMENSION",
+			"CL_INVALID_WORK_GROUP_SIZE",
+			"CL_INVALID_WORK_ITEM_SIZE",
+			"CL_INVALID_GLOBAL_OFFSET",
+			"CL_INVALID_EVENT_WAIT_LIST",
+			"CL_INVALID_EVENT",
+			"CL_INVALID_OPERATION",
+			"CL_INVALID_GL_OBJECT",
+			"CL_INVALID_BUFFER_SIZE",
+			"CL_INVALID_MIP_LEVEL",
+			"CL_INVALID_GLOBAL_WORK_SIZE",
+		};
+
+		const int errorCount = sizeof(errorString) / sizeof(errorString[0]);
+
+		const int index = -error;
+
+		return (index >= 0 && index < errorCount) ? errorString[index] : "Unspecified Error";
 	}
 
+	// ----------------------------------------------------------------------
+
+	cl_int OpenCLKernel::bindOpenGLInterOp(){
+		cl_int err = CL_SUCCESS;
+		if (!mOpenGLInteropArguments.empty()){
+			// we have to acquire our opengl interop objects first.
+			err = clEnqueueAcquireGLObjects(pOpenCL->getQueue(), mOpenGLInteropArguments.size() , mOpenGLInteropArguments.data(), 0, NULL, NULL);
+		}
+		return err;
+	}
+
+	cl_int OpenCLKernel::unbindOpenGLInterOp(){
+		cl_int err = CL_SUCCESS;
+		if (!mOpenGLInteropArguments.empty()){
+			// we have to release our opengl interop objects, if we acquired them earlier.
+			err = clEnqueueReleaseGLObjects(pOpenCL->getQueue(), mOpenGLInteropArguments.size() , mOpenGLInteropArguments.data(), 0, NULL, NULL);
+		}
+		return err;
+	}
+
+	// ----------------------------------------------------------------------
+
+	void OpenCLKernel::run(int numDimensions, size_t *globalSize, size_t *localSize) {
+		if (clKernel== NULL) return;
+		cl_int err=CL_SUCCESS;
+		bindOpenGLInterOp();
+		err = clEnqueueNDRangeKernel(pOpenCL->getQueue(), clKernel, numDimensions, NULL, globalSize, localSize, 0, 0, 0);
+		if (err != CL_SUCCESS) {
+			ofLogNotice() << getCLErrorString(err);
+		}
+		unbindOpenGLInterOp();
+	}
+
+	// ----------------------------------------------------------------------
 
 	inline size_t roundToNextMultipleOf(size_t num_, size_t divisor_){
+		if (divisor_ == 0) {
+			ofLogError() << __FUNCTION__ << "division by zero!";
+			// we return the full divisor, since this
+			return divisor_;
+		}
 		return std::min(num_ % divisor_, size_t(1)) * divisor_ + (num_ / divisor_) * divisor_;
 	}
-	
+
+	// ----------------------------------------------------------------------
+
 	void OpenCLKernel::run1D(size_t globalSize, size_t localSize) {
 		size_t globalSizes[1];
-		// tig: make sure localSize <= maxWorkGroupSize
+
 		if (localSize > pOpenCL->info.maxWorkGroupSize) {
 			ofLogError() << "Could not run OpenCL 1D kernel at workgroup size: " << localSize << ". Max supported local (=workgroup) size: " << pOpenCL->info.maxWorkGroupSize;
 			return;
-		}
-		globalSizes[0] = roundToNextMultipleOf(globalSize,localSize);	// make sure global size is a multiple of local size
-		if(localSize) {
+		} 
+		if(localSize > 0) {
+			// tig: make sure localSize <= maxWorkGroupSize
 			size_t localSizes[1];
 			localSizes[0] = localSize;
+			globalSizes[0] = roundToNextMultipleOf(globalSize,localSize);	// make sure global size is a multiple of local size
 			run(1, globalSizes, localSizes);
 		} else {
+			globalSizes[0] = globalSize;
 			run(1, globalSizes, NULL);
 		}
 	}
-	
+
+	// ----------------------------------------------------------------------
+
 	void OpenCLKernel::run2D(size_t globalSizeX, size_t globalSizeY, size_t localSizeX, size_t localSizeY) {
 		// tig: make sure localSizeX * localSizeY <= maxWorkGroupSize
 		if (localSizeX * localSizeY > pOpenCL->info.maxWorkGroupSize) {
@@ -78,7 +181,9 @@ namespace msa {
 			run(2, globalSizes, NULL);
 		}
 	}
-	
+
+	// ----------------------------------------------------------------------
+
 	void OpenCLKernel::run3D(size_t globalSizeX, size_t globalSizeY, size_t globalSizeZ, size_t localSizeX, size_t localSizeY, size_t localSizeZ) {
 		// tig: make sure localSizeX * localSizeY * localSizeZ <= maxWorkGroupSize
 		if (localSizeX * localSizeY * localSizeZ > pOpenCL->info.maxWorkGroupSize) {
@@ -99,13 +204,71 @@ namespace msa {
 			run(3, globalSizes, NULL);
 		}
 	}
-	
-	
+
+	// ----------------------------------------------------------------------
+
 	cl_kernel& OpenCLKernel::getCLKernel() {
 		return clKernel;
 	}
-	
+
+	// ----------------------------------------------------------------------
+
 	string OpenCLKernel::getName() {
 		return name;
 	}
+
+	// ----------------------------------------------------------------------
+
+	bool OpenCLKernel::setArg(int argNumber, void* argp_, size_t size_){
+		if ( !clKernel ) return false;
+		// ----------| invariant: we have a valid kernel.
+
+		cl_int err = clSetKernelArg(clKernel, argNumber, size_, argp_);
+
+		if (err != CL_SUCCESS) {
+			ofLogNotice() << getCLErrorString(err);
+		}
+		return (err == CL_SUCCESS);
+	}
+
+	// ----------------------------------------------------------------------
+
+	// assign buffer to arguments
+	//	void setArg(int argNumber, cl_mem clMem);
+	bool  OpenCLKernel::setArg(int argNumber, float f) {
+		return setArg(argNumber, &f, sizeof(float));
+	}
+
+	// ----------------------------------------------------------------------
+
+	bool OpenCLKernel::setArg(int argNumber, int i){
+		return setArg(argNumber, &i, sizeof(int));
+	}
+
+	// ----------------------------------------------------------------------
+
+	bool OpenCLKernel::setArg(int argNumber, msa::OpenCLBuffer& buf){
+		// tig: if the buffer has a corresponding gl object, we need to flag it,
+		// so that it can be bound and then unbound upon run().
+		if ( !clKernel ) return false;
+		// ----------| invariant: we have a valid kernel.
+
+		// if this object has an openGL representation it needs to be flagged as occupied 
+		// whenever openCL runs on it. 
+		// we'll do this automatically in run(), but we first have to register all objects 
+		// that have such dependencies.
+		if (buf.hasCorrespondingGLObject){
+			// make sure we haven't stored this object before.
+			if (find(mOpenGLInteropArguments.begin(),mOpenGLInteropArguments.end(), buf.clMemObject) == mOpenGLInteropArguments.end()){
+				mOpenGLInteropArguments.push_back(buf.clMemObject);
+			}
+		}
+		bool result = setArg(argNumber, &buf.clMemObject,  sizeof(&buf.clMemObject));
+
+		return result;
+	}
+
+	// ----------------------------------------------------------------------
+
 }
+

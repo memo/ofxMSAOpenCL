@@ -36,7 +36,6 @@ namespace msa {
 			char *source = OpenCL_textFileRead((char*)fullPath.c_str());
 			if(source == NULL) {
 				ofLog(OF_LOG_ERROR, "Error loading program file: " + fullPath);
-				assert(false); 
 			}
 			
 			loadFromSource(source);
@@ -57,6 +56,8 @@ namespace msa {
 		const char* csource = source.c_str();
 		clProgram = clCreateProgramWithSource(pOpenCL->getContext(), 1, &csource, NULL, &err);
 		
+
+
 		build();
 	} 
 	
@@ -90,9 +91,9 @@ namespace msa {
 			return;
 		}
 		
-		size_t binaries_sizes[program_num_devices];
+		vector<size_t> binaries_sizes(program_num_devices);
 		
-		err = clGetProgramInfo(clProgram, CL_PROGRAM_BINARY_SIZES, program_num_devices*sizeof(size_t), binaries_sizes, NULL);
+		err = clGetProgramInfo(clProgram, CL_PROGRAM_BINARY_SIZES, program_num_devices*sizeof(size_t), binaries_sizes.data(), NULL);
 		assert(err = CL_SUCCESS);
 		
 		char **binaries = new char*[program_num_devices];
