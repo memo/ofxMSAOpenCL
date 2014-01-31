@@ -85,11 +85,6 @@ namespace msa {
 			// at the moment only the first successful platform is selected. 
 			// so platform defaults to 0
 
-			HGLRC ctxt = static_cast<ofAppGLFWWindow*>(ofGetWindowPtr())->getWGLContext();
-
-			HGLRC ctxt2 = wglGetCurrentContext();
-			HDC dc = wglGetCurrentDC();
-
 			cl_context_properties properties[] = 
 			{
 				CL_GL_CONTEXT_KHR, (cl_context_properties)wglGetCurrentContext(), 
