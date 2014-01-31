@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#ifdef __APPLE__
+#ifdef TARGET_OSX
 	#include <OpenCL/Opencl.h>
 #else
 	#include <CL/opencl.h>

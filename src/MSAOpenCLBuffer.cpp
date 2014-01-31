@@ -3,8 +3,7 @@
 
 namespace msa {
 	
-	OpenCLBuffer::OpenCLBuffer()
-		: hasCorrespondingGLObject(false) {
+	OpenCLBuffer::OpenCLBuffer() {
 		ofLog(OF_LOG_VERBOSE, "OpenCLBuffer::OpenCLBuffer");
 	}
 	
@@ -48,18 +47,24 @@ namespace msa {
 	
 	
 	void OpenCLBuffer::read(void *dataPtr, int startOffsetBytes, int numberOfBytes, bool blockingRead) {
+		if (hasCorrespondingGLObject) lockGLObject();
 		cl_int err = clEnqueueReadBuffer(pOpenCL->getQueue(), clMemObject, blockingRead, startOffsetBytes, numberOfBytes, dataPtr, 0, NULL, NULL);
+		if (hasCorrespondingGLObject) unlockGLObject();
 		assert(err == CL_SUCCESS);
 	}
 	
 	
 	void OpenCLBuffer::write(void *dataPtr, int startOffsetBytes, int numberOfBytes, bool blockingWrite) {
+		if (hasCorrespondingGLObject) lockGLObject();
 		cl_int err = clEnqueueWriteBuffer(pOpenCL->getQueue(), clMemObject, blockingWrite, startOffsetBytes, numberOfBytes, dataPtr, 0, NULL, NULL);
+		if (hasCorrespondingGLObject) unlockGLObject();
 		assert(err == CL_SUCCESS);
 	}
 	
 	void OpenCLBuffer::copyFrom(OpenCLBuffer &srcBuffer, int srcOffsetBytes, int dstOffsetBytes, int numberOfBytes) {
+		if (hasCorrespondingGLObject) lockGLObject();
 		cl_int err = clEnqueueCopyBuffer(pOpenCL->getQueue(), srcBuffer.getCLMem(), clMemObject, srcOffsetBytes, dstOffsetBytes, numberOfBytes, 0, NULL, NULL);
+		if (hasCorrespondingGLObject) unlockGLObject();
 		assert(err == CL_SUCCESS);
 	}
 	

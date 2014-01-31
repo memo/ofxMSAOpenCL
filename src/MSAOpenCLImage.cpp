@@ -82,6 +82,7 @@ namespace msa {
 		assert(clMemObject);
 		
 		texture = &tex;
+		hasCorrespondingGLObject = true;
 	}
 	
 	
@@ -135,12 +136,12 @@ namespace msa {
 		delete []data;
 	}
 	
-	
 	void OpenCLImage::read(void *dataPtr, bool blockingRead, size_t *pOrigin, size_t *pRegion, size_t rowPitch, size_t slicePitch) {
 		if(pOrigin == NULL) pOrigin = origin;
 		if(pRegion == NULL) pRegion = region;
-		
+		if (hasCorrespondingGLObject) lockGLObject();
 		cl_int err = clEnqueueReadImage(pOpenCL->getQueue(), clMemObject, blockingRead, pOrigin, pRegion, rowPitch, slicePitch, dataPtr, 0, NULL, NULL);
+		if (hasCorrespondingGLObject) unlockGLObject();
 		assert(err == CL_SUCCESS);
 	}
 	
@@ -148,8 +149,9 @@ namespace msa {
 	void OpenCLImage::write(void *dataPtr, bool blockingWrite, size_t *pOrigin, size_t *pRegion, size_t rowPitch, size_t slicePitch) {
 		if(pOrigin == NULL) pOrigin = origin;
 		if(pRegion == NULL) pRegion = region;
-		
+		if (hasCorrespondingGLObject) lockGLObject();
 		cl_int err = clEnqueueWriteImage(pOpenCL->getQueue(), clMemObject, blockingWrite, pOrigin, pRegion, rowPitch, slicePitch, dataPtr, 0, NULL, NULL);
+		if (hasCorrespondingGLObject) unlockGLObject();
 		assert(err == CL_SUCCESS);
 	}
 	
@@ -157,8 +159,9 @@ namespace msa {
 		if(pSrcOrigin == NULL) pSrcOrigin = origin;
 		if(pDstOrigin == NULL) pDstOrigin = origin;
 		if(pRegion == NULL) pRegion = region;
-		
+		if (hasCorrespondingGLObject) lockGLObject();
 		cl_int err = clEnqueueCopyImage(pOpenCL->getQueue(), srcImage.getCLMem(), clMemObject, pSrcOrigin, pDstOrigin, pRegion, 0, NULL, NULL);
+		if (hasCorrespondingGLObject) unlockGLObject();
 		assert(err == CL_SUCCESS);
 	}
 	

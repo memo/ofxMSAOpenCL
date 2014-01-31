@@ -36,7 +36,7 @@ namespace msa {
 		//	void setArg(int argNumber, cl_mem clMem);
 		bool setArg(int argNumber, float f);
 		bool setArg(int argNumber, int i);
-		bool setArg(int argNumber, OpenCLBuffer& buf);
+		bool setArg(int argNumber, OpenCLMemoryObject& buf);
 
 		bool setArg(int argNumber, void* argp_, size_t size_);
 

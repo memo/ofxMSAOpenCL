@@ -247,7 +247,7 @@ namespace msa {
 
 	// ----------------------------------------------------------------------
 
-	bool OpenCLKernel::setArg(int argNumber, msa::OpenCLBuffer& buf){
+	bool OpenCLKernel::setArg(int argNumber, msa::OpenCLMemoryObject& buf){
 		// tig: if the buffer has a corresponding gl object, we need to flag it,
 		// so that it can be bound and then unbound upon run().
 		if ( !clKernel ) return false;

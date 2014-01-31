@@ -1,5 +1,8 @@
 #include "MSAOpenCL.h"
-#include "ofAppGLFWWindow.h"
+#ifdef TARGET_OSX
+	#include <OpenCL/Opencl.h>
+	#include <OpenGL/OpenGL.h>
+#endif
 
 namespace msa {
 

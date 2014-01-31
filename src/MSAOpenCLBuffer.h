@@ -65,10 +65,6 @@ namespace msa {
 		//	int numberOfBytes;		//dont know how big it is if we pass in globject ?
 		
 		void init();
-	private:
-		bool hasCorrespondingGLObject;
-	
-		friend class OpenCLKernel;
 
 	};
 }
