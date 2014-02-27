@@ -92,11 +92,11 @@ namespace msa {
 				CL_CONTEXT_PLATFORM, (cl_context_properties)mPlatformID, 
 				0
 			};
-			ofLogNotice() << mPlatformID;
+			ofLogNotice() << "OpenCL Platform ID:" << mPlatformID;
 			cl_device_id id = getDevice();
 			
 			clContext = clCreateContext(properties, 1, &id, NULL, NULL, &err);
-			ofLogNotice() << err;
+			ofLogNotice() <<  "Created OpenCL context: " << err;
 		}
 
 #endif
