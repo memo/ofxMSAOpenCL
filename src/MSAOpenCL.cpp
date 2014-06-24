@@ -27,20 +27,48 @@ namespace msa {
 		clReleaseCommandQueue(clQueue);
 		clReleaseContext(clContext);
 	}
+
 	
-	
-	void OpenCL::setup(int clDeviceType, int numDevices) {
-		ofLog(OF_LOG_VERBOSE, "OpenCL::setup " + ofToString(clDeviceType) + ", " + ofToString(numDevices));
+////    void OpenCL::setupWithDevice(int device) {
+////		ofLog(OF_LOG_VERBOSE, "OpenCL::setupWithDevice");
+////        vector<int> devices;
+////        devices.push_back(device);
+////        setupWithDevices(devices);
+////    }
+////    
+////    void OpenCL::setupFromOpenGLWithDevice(int device) {
+////		ofLog(OF_LOG_VERBOSE, "OpenCL::setupFromOpenGLWithDevice");
+////        vector<int> devices;
+////        devices.push_back(device);
+////        setupFromOpenGLWithDevices(devices);
+////    }
+////
+////    
+//    
+//    void OpenCL::setupFromOpenGL(vector<int> devices) {
+//		ofLog(OF_LOG_VERBOSE, "OpenCL::setupFromOpenGL ");
+//        
+//        if(isSetup) {
+//			ofLog(OF_LOG_VERBOSE, "... already setup. returning");
+//			return;
+//		}
+//
+//    }
+    
+	void OpenCL::setup(int clDeviceType, int deviceNumber) {
+		ofLog(OF_LOG_VERBOSE, "OpenCL::setup " + ofToString(clDeviceType));
 		
 		if(isSetup) {
 			ofLog(OF_LOG_VERBOSE, "... already setup. returning");
 			return;
 		}
 		
+		if(deviceInfo.size() == 0) getDeviceInfos(CL_DEVICE_TYPE_GPU);
+        deviceNumber = (deviceNumber + getNumDevices()) % getNumDevices();
+        clDevice = deviceInfo[deviceNumber].clDeviceId;
+        
 		cl_int err;
-		
-		int numDevicesToUse = createDevice(clDeviceType, numDevices);
-		clContext = clCreateContext(NULL, numDevicesToUse, &clDevice, NULL, NULL, &err);
+		clContext = clCreateContext(NULL, 1, &clDevice, NULL, NULL, &err);
 		if(clContext == NULL) {
 			ofLog(OF_LOG_ERROR, "Error creating clContext.");
 			assert(err != CL_INVALID_PLATFORM);
@@ -58,7 +86,7 @@ namespace msa {
 	}	
 	
 	
-	void OpenCL::setupFromOpenGL() {
+	void OpenCL::setupFromOpenGL(int deviceNumber) {
 		ofLog(OF_LOG_VERBOSE, "OpenCL::setupFromOpenGL ");
 		
 		if(isSetup) {
@@ -66,9 +94,9 @@ namespace msa {
 			return;
 		}
 		
-		cl_int err;
-		
-		createDevice(CL_DEVICE_TYPE_GPU, 1);
+		if(deviceInfo.size() == 0) getDeviceInfos(CL_DEVICE_TYPE_GPU);
+        deviceNumber = (deviceNumber + getNumDevices()) % getNumDevices();
+        clDevice = deviceInfo[deviceNumber].clDeviceId;
 		
 #ifdef TARGET_OSX	
 		CGLContextObj kCGLContext = CGLGetCurrentContext();
@@ -79,6 +107,7 @@ namespace msa {
 		assert(false);
 #endif
 		
+		cl_int err;
 		clContext = clCreateContext(properties, 0, 0, NULL, NULL, &err);
 		if(clContext == NULL) {
 			ofLog(OF_LOG_ERROR, "Error creating clContext.");
@@ -198,13 +227,12 @@ namespace msa {
 	
 	
 	
-	int OpenCL::createDevice(int clDeviceType, int numDevices) {
+	int OpenCL::getDeviceInfos(int clDeviceType) {
 		cl_int err;
-		cl_uint numDevicesFound;
 		
 		cl_platform_id platformIdBuffer[100];
 		cl_uint numPlatforms=0;
-
+        
 		//	windows AMD sdk/ati radeon driver implementation doesn't accept NULL as a platform ID, so fetch it first
 		err = clGetPlatformIDs(	sizeof(platformIdBuffer)/sizeof(platformIdBuffer[0]), platformIdBuffer, &numPlatforms );
 
@@ -215,11 +243,15 @@ namespace msa {
 			numPlatforms = 1;
 		}
 
+        const int numDevices = 100;
+        cl_device_id clDevices[numDevices];        // TODO: is there a better way of doing it?
+		cl_uint numDevicesFound;
+
 		//	find first successfull platform
-		for ( int p=0;	p<numPlatforms;	p++ )
-		{
+        // TODO: what if there is more than one platform?
+		for ( int p=0;	p<numPlatforms;	p++ ) {
 			cl_platform_id platformId = platformIdBuffer[p];
-			err = clGetDeviceIDs(platformId, clDeviceType, numDevices, &clDevice, &numDevicesFound);
+			err = clGetDeviceIDs(platformId, clDeviceType, numDevices, clDevices, &numDevicesFound);
 			if ( err != CL_SUCCESS )
 				continue;
 		}
@@ -227,63 +259,69 @@ namespace msa {
 		ofLog(OF_LOG_VERBOSE, ofToString(numDevicesFound, 0) + " devices found, on " + ofToString(numPlatforms, 0) + " platforms\n");
 
 		//	no platforms worked
-		if ( err != CL_SUCCESS )
-		{
+		if ( err != CL_SUCCESS ) {
 			ofLog(OF_LOG_ERROR, "Error creating clDevice.");
 			assert(false);
 			return 0;
 		}	
 		
-		int numDevicesToUse = min((int)numDevicesFound, numDevices);
-		
-		for(int i=0; i<numDevicesToUse; i++) {
+        deviceInfo.clear();
+		for(int i=0; i<numDevicesFound; i++) {
+            DeviceInfo info;
+            
 			size_t	size;
-			cl_device_id &d = (&clDevice)[i];
-			err = clGetDeviceInfo(d, CL_DEVICE_VENDOR, sizeof(info.vendorName), info.vendorName, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_NAME, sizeof(info.deviceName), info.deviceName, &size);
-			err |= clGetDeviceInfo(d, CL_DRIVER_VERSION, sizeof(info.driverVersion), info.driverVersion, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_VERSION, sizeof(info.deviceVersion), info.deviceVersion, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(info.maxComputeUnits), &info.maxComputeUnits, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS, sizeof(info.maxWorkItemDimensions), &info.maxWorkItemDimensions, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(info.maxWorkItemSizes), &info.maxWorkItemSizes, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(info.maxWorkGroupSize), &info.maxWorkGroupSize, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(info.maxClockFrequency), &info.maxClockFrequency, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_MAX_MEM_ALLOC_SIZE, sizeof(info.maxMemAllocSize), &info.maxMemAllocSize, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_IMAGE_SUPPORT, sizeof(info.imageSupport), &info.imageSupport, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_MAX_READ_IMAGE_ARGS, sizeof(info.maxReadImageArgs), &info.maxReadImageArgs, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_MAX_WRITE_IMAGE_ARGS, sizeof(info.maxWriteImageArgs), &info.maxWriteImageArgs, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_IMAGE2D_MAX_WIDTH, sizeof(info.image2dMaxWidth), &info.image2dMaxWidth, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_IMAGE2D_MAX_HEIGHT, sizeof(info.image2dMaxHeight), &info.image2dMaxHeight, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_IMAGE3D_MAX_WIDTH, sizeof(info.image3dMaxWidth), &info.image3dMaxWidth, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_IMAGE3D_MAX_HEIGHT, sizeof(info.image3dMaxHeight), &info.image3dMaxHeight, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_IMAGE3D_MAX_DEPTH, sizeof(info.image3dMaxDepth), &info.image3dMaxDepth, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_MAX_SAMPLERS, sizeof(info.maxSamplers), &info.maxSamplers, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_MAX_PARAMETER_SIZE, sizeof(info.maxParameterSize), &info.maxParameterSize, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_GLOBAL_MEM_CACHE_SIZE, sizeof(info.globalMemCacheSize), &info.globalMemCacheSize, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(info.globalMemSize), &info.globalMemSize, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE, sizeof(info.maxConstantBufferSize), &info.maxConstantBufferSize, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_MAX_CONSTANT_ARGS, sizeof(info.maxConstantArgs), &info.maxConstantArgs, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(info.localMemSize), &info.localMemSize, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_ERROR_CORRECTION_SUPPORT, sizeof(info.errorCorrectionSupport), &info.errorCorrectionSupport, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_PROFILING_TIMER_RESOLUTION, sizeof(info.profilingTimerResolution), &info.profilingTimerResolution, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_ENDIAN_LITTLE, sizeof(info.endianLittle), &info.endianLittle, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_PROFILE, sizeof(info.profile), info.profile, &size);
-			err |= clGetDeviceInfo(d, CL_DEVICE_EXTENSIONS, sizeof(info.extensions), info.extensions, &size);
+            info.clDeviceId = clDevices[i];
+			err = clGetDeviceInfo(info.clDeviceId, CL_DEVICE_VENDOR, sizeof(info.vendorName), info.vendorName, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_NAME, sizeof(info.deviceName), info.deviceName, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DRIVER_VERSION, sizeof(info.driverVersion), info.driverVersion, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_VERSION, sizeof(info.deviceVersion), info.deviceVersion, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(info.maxComputeUnits), &info.maxComputeUnits, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS, sizeof(info.maxWorkItemDimensions), &info.maxWorkItemDimensions, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(info.maxWorkItemSizes), &info.maxWorkItemSizes, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(info.maxWorkGroupSize), &info.maxWorkGroupSize, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(info.maxClockFrequency), &info.maxClockFrequency, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_MAX_MEM_ALLOC_SIZE, sizeof(info.maxMemAllocSize), &info.maxMemAllocSize, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_IMAGE_SUPPORT, sizeof(info.imageSupport), &info.imageSupport, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_MAX_READ_IMAGE_ARGS, sizeof(info.maxReadImageArgs), &info.maxReadImageArgs, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_MAX_WRITE_IMAGE_ARGS, sizeof(info.maxWriteImageArgs), &info.maxWriteImageArgs, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_IMAGE2D_MAX_WIDTH, sizeof(info.image2dMaxWidth), &info.image2dMaxWidth, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_IMAGE2D_MAX_HEIGHT, sizeof(info.image2dMaxHeight), &info.image2dMaxHeight, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_IMAGE3D_MAX_WIDTH, sizeof(info.image3dMaxWidth), &info.image3dMaxWidth, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_IMAGE3D_MAX_HEIGHT, sizeof(info.image3dMaxHeight), &info.image3dMaxHeight, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_IMAGE3D_MAX_DEPTH, sizeof(info.image3dMaxDepth), &info.image3dMaxDepth, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_MAX_SAMPLERS, sizeof(info.maxSamplers), &info.maxSamplers, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_MAX_PARAMETER_SIZE, sizeof(info.maxParameterSize), &info.maxParameterSize, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_GLOBAL_MEM_CACHE_SIZE, sizeof(info.globalMemCacheSize), &info.globalMemCacheSize, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(info.globalMemSize), &info.globalMemSize, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE, sizeof(info.maxConstantBufferSize), &info.maxConstantBufferSize, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_MAX_CONSTANT_ARGS, sizeof(info.maxConstantArgs), &info.maxConstantArgs, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(info.localMemSize), &info.localMemSize, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_ERROR_CORRECTION_SUPPORT, sizeof(info.errorCorrectionSupport), &info.errorCorrectionSupport, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_PROFILING_TIMER_RESOLUTION, sizeof(info.profilingTimerResolution), &info.profilingTimerResolution, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_ENDIAN_LITTLE, sizeof(info.endianLittle), &info.endianLittle, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_PROFILE, sizeof(info.profile), info.profile, &size);
+			err |= clGetDeviceInfo(info.clDeviceId, CL_DEVICE_EXTENSIONS, sizeof(info.extensions), info.extensions, &size);
 			
+            deviceInfo.push_back(info);
+
 			if(err != CL_SUCCESS) {
 				ofLog(OF_LOG_ERROR, "Error getting clDevice information.");
 				assert(false);
 			}
 			
-			ofLog(OF_LOG_VERBOSE, getInfoAsString());
+			ofLog(OF_LOG_VERBOSE, getInfoAsString(i));
 		}
 		
 		
-		return numDevicesToUse;
+		return numDevicesFound;
 	}
 	
-	string OpenCL::getInfoAsString() {
-		return string("\n\n*********\nOpenCL Device information:") + 
+	string OpenCL::getInfoAsString(int deviceNumber) {
+        deviceNumber = (deviceNumber + getNumDevices()) % getNumDevices();
+        
+        DeviceInfo &info = deviceInfo[deviceNumber];
+		return string("\n\n*********\nOpenCL Device information for device #") + ofToString(deviceNumber) +
+        "\n cl_device_id................" + ofToString(info.clDeviceId) +
 		"\n vendorName.................." + string((char*)info.vendorName) + 
 		"\n deviceName.................." + string((char*)info.deviceName) + 
 		"\n driverVersion..............." + string((char*)info.driverVersion) +

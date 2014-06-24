@@ -17,11 +17,23 @@ namespace msa {
 		~OpenCL();
 		
 		static OpenCL *currentOpenCL;
+
+        // fills the deviceInfo vector and returns number of devices found
+        // later you can pass these device numbers into setup or setupFromOpenGL
+        int     getDeviceInfos(int clDeviceType = CL_DEVICE_TYPE_GPU);
+        int     getNumDevices() { return deviceInfo.size(); }
 		
-		// initializes openCL with the passed in device (leave empty for default)
-		void	setup(int clDeviceType = CL_DEVICE_TYPE_GPU, int numDevices = 1);
-		void	setupFromOpenGL();
-		
+
+        // initializes openCL with the passed in device number
+        // use zero-based device number (0, 1, 2 etc) NOT clDeviceId
+        // use getDeviceInfos to see what devices are available
+        // or use deviceNumber = 0 to use first device found
+        // or use deviceNumber = -1 to use last device found (best for Macs with multiple GPUs)
+        // TODO: allow passing in multiple devices
+		void	setup(int clDeviceType = CL_DEVICE_TYPE_GPU, int deviceNumber = -1);
+		void	setupFromOpenGL(int deviceNumber = -1);
+        
+        
 		cl_device_id&		getDevice();
 		cl_context&			getContext();
 		cl_command_queue&	getQueue();
@@ -116,9 +128,11 @@ namespace msa {
 			return kernels;
 		}
 		
-		string getInfoAsString();
+        // get info for i'th device
+		string getInfoAsString(int deviceNumber = 0);
 		
-		struct {
+		struct DeviceInfo {
+            cl_device_id clDeviceId;
 			cl_char		vendorName[1024];
 			cl_char		deviceName[1024];
 			cl_char		driverVersion[1024];
@@ -149,11 +163,12 @@ namespace msa {
 			cl_bool		endianLittle;
 			cl_char		profile[1024];
 			cl_char		extensions[1024];		
-		} info;
+		};
+        
+        vector<DeviceInfo> deviceInfo;
 		
 		
-	protected:	
-		
+	protected:
 		cl_device_id					clDevice;
 		cl_context						clContext;
 		cl_command_queue				clQueue;
@@ -163,7 +178,6 @@ namespace msa {
 		vector<OpenCLMemoryObject*>	memObjects;
 		bool							isSetup;
 		
-		int createDevice(int clDeviceType, int numDevices);
 		void createQueue();
 	};
 	
