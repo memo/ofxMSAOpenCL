@@ -13,8 +13,6 @@
 #include "MSAOpenCL.h"
 
 
-#define USE_OPENGL_CONTEXT
-
 
 #define NUM_PARTICLES (1000*1000)
 
@@ -31,15 +29,13 @@ float2				mousePos;
 float2				dimensions;
 
 msa::OpenCL			opencl;
-msa::OpenCLKernel	*kernelUpdate;
-
 
 Particle			particles[NUM_PARTICLES];
 msa::OpenCLBuffer	clMemParticles;		// stores above data
 
 
 float2				particlesPos[NUM_PARTICLES];
-msa::OpenCLBuffer	clMemPosVBO;		// stores above data
+msa::OpenCLBuffer	clMemPosBuffer;		// stores above data
 
 GLuint				vbo[1];
 
@@ -50,12 +46,8 @@ void testApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	ofSetVerticalSync(false);
 	
-#ifdef USE_OPENGL_CONTEXT
 	opencl.setupFromOpenGL();
-#else	
-	opencl.setup(CL_DEVICE_TYPE_CPU, 2);
-#endif	
-	
+
 	for(int i=0; i<NUM_PARTICLES; i++) {
 		Particle &p = particles[i];
 		p.vel.set(0, 0);
@@ -70,20 +62,17 @@ void testApp::setup(){
 	
 	
 	opencl.loadProgramFromFile("MSAOpenCL/Particle.cl");
-	kernelUpdate = opencl.loadKernel("updateParticle");
-	
+	opencl.loadKernel("updateParticle");
+
 	
 	clMemParticles.initBuffer(sizeof(Particle) * NUM_PARTICLES, CL_MEM_READ_WRITE, particles);
-#ifdef USE_OPENGL_CONTEXT
-	clMemPosVBO.initFromGLObject(vbo[0]);
-#else
-	clMemPosVBO.initBuffer(sizeof(Vec2) * NUM_PARTICLES, CL_MEM_READ_WRITE, particlesPos);
-#endif	
+
+	clMemPosBuffer.initFromGLObject(vbo[0]);
 	
-	kernelUpdate->setArg(0, clMemParticles.getCLMem());
-	kernelUpdate->setArg(1, clMemPosVBO.getCLMem());
-	kernelUpdate->setArg(2, mousePos);
-	kernelUpdate->setArg(3, dimensions);
+	opencl.kernel("updateParticle")->setArg(0, clMemParticles.getCLMem());
+	opencl.kernel("updateParticle")->setArg(1, clMemPosBuffer.getCLMem());
+	opencl.kernel("updateParticle")->setArg(2, mousePos);
+	opencl.kernel("updateParticle")->setArg(3, dimensions);
 	
 	glPointSize(1);
 }
@@ -96,21 +85,18 @@ void testApp::update(){
 	dimensions.x = ofGetWidth();
 	dimensions.y = ofGetHeight();
 	
-	kernelUpdate->setArg(2, mousePos);
-	kernelUpdate->setArg(3, dimensions);
-	kernelUpdate->run1D(NUM_PARTICLES);
+	opencl.kernel("updateParticle")->setArg(2, mousePos);
+	opencl.kernel("updateParticle")->setArg(3, dimensions);
+	opencl.kernel("updateParticle")->run1D(NUM_PARTICLES);
 }
 
 //--------------------------------------------------------------
 void testApp::draw(){
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo[0]);
-#ifdef USE_OPENGL_CONTEXT
+
 	opencl.finish();
-#else	
-	opencl.readBuffer(sizeof(Vec2) * NUM_PARTICLES, clMemPosVBO, particlesPos);
-	glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sizeof(Vec2) * NUM_PARTICLES, particlesPos);
-#endif	
+
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, 0);
 	glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
