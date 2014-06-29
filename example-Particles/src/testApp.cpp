@@ -4,7 +4,7 @@
  The OpenCL kernel writes position data directly to a VBO stored in the OpenGL device memory
  so now data transfer between host and device during runtime
  
- Based on Rui's ofxOpenCL particle example opencl particles 001b.zip 
+ Kernel based on Rui's ofxOpenCL particle example opencl particles 001b.zip 
  at http://code.google.com/p/ruisource/ 
  *****/
 
@@ -30,14 +30,10 @@ float2				dimensions;
 
 msa::OpenCL			opencl;
 
-Particle			particles[NUM_PARTICLES];
-msa::OpenCLBuffer	clMemParticles;		// stores above data
+msa::OpenCLBufferManagedT<Particle>	particles; // vector of Particles on host and corresponding clBuffer on device
+msa::OpenCLBufferManagedT<float2> particlePos; // vector of particle positions on host and corresponding clBuffer on device
 
-
-float2				particlesPos[NUM_PARTICLES];
-msa::OpenCLBuffer	clMemPosBuffer;		// stores above data
-
-GLuint				vbo[1];
+GLuint				vbo;
 
 
 //--------------------------------------------------------------
@@ -47,30 +43,34 @@ void testApp::setup(){
 	ofSetVerticalSync(false);
 	
 	opencl.setupFromOpenGL();
+    
+    // create vbo
+    glGenBuffersARB(1, &vbo);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
+	glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(float2) * NUM_PARTICLES, 0, GL_DYNAMIC_COPY_ARB);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
+    // init host and CL buffers
+    particles.initBuffer(NUM_PARTICLES);
+    particlePos.initFromGLObject(vbo, NUM_PARTICLES);
+
+    // init data
 	for(int i=0; i<NUM_PARTICLES; i++) {
 		Particle &p = particles[i];
 		p.vel.set(0, 0);
 		p.mass = ofRandom(0.5, 1);		
-		particlesPos[i].set(ofRandomWidth(), ofRandomHeight());
+		particlePos[i].set(ofRandomWidth(), ofRandomHeight());
 	}
-	
-	glGenBuffersARB(1, vbo);
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo[0]);
-	glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(float2) * NUM_PARTICLES, particlesPos, GL_DYNAMIC_COPY_ARB);
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+    
+    particles.writeToDevice();
+    particlePos.writeToDevice();
 	
 	
 	opencl.loadProgramFromFile("MSAOpenCL/Particle.cl");
 	opencl.loadKernel("updateParticle");
 
-	
-	clMemParticles.initBuffer(sizeof(Particle) * NUM_PARTICLES, CL_MEM_READ_WRITE, particles);
-
-	clMemPosBuffer.initFromGLObject(vbo[0]);
-	
-	opencl.kernel("updateParticle")->setArg(0, clMemParticles.getCLMem());
-	opencl.kernel("updateParticle")->setArg(1, clMemPosBuffer.getCLMem());
+	opencl.kernel("updateParticle")->setArg(0, particles.getCLMem());
+	opencl.kernel("updateParticle")->setArg(1, particlePos.getCLMem());
 	opencl.kernel("updateParticle")->setArg(2, mousePos);
 	opencl.kernel("updateParticle")->setArg(3, dimensions);
 	
@@ -93,7 +93,7 @@ void testApp::update(){
 //--------------------------------------------------------------
 void testApp::draw(){
 	glColor3f(1.0f, 1.0f, 1.0f);
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo[0]);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
 
 	opencl.finish();
 
@@ -107,43 +107,3 @@ void testApp::draw(){
 	string info = "fps: " + ofToString(ofGetFrameRate()) + "\nnumber of particles: " + ofToString(NUM_PARTICLES);
 	ofDrawBitmapString(info, 20, 20);
 }
-
-//--------------------------------------------------------------
-void testApp::exit() {
-}
-
-//--------------------------------------------------------------
-void testApp::keyPressed(int key){
-	ofToggleFullscreen();
-}
-
-//--------------------------------------------------------------
-void testApp::keyReleased(int key){
-	
-}
-
-//--------------------------------------------------------------
-void testApp::mouseMoved(int x, int y ){
-	
-}
-
-//--------------------------------------------------------------
-void testApp::mouseDragged(int x, int y, int button){
-	
-}
-
-//--------------------------------------------------------------
-void testApp::mousePressed(int x, int y, int button){
-	
-}
-
-//--------------------------------------------------------------
-void testApp::mouseReleased(int x, int y, int button){
-	
-}
-
-//--------------------------------------------------------------
-void testApp::windowResized(int w, int h){
-	
-}
-
