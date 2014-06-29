@@ -18,13 +18,8 @@ namespace msa {
 	public:
 		virtual ~OpenCLMemoryObject();
 		
-		cl_mem	&getCLMem();
-		
-		operator cl_mem&() {
-			return getCLMem();
-		}
-		
-		
+        cl_mem& getCLMem() { return clMemObject; }
+		operator cl_mem&() { return getCLMem(); }
 		
 	protected:
 		OpenCLMemoryObject();

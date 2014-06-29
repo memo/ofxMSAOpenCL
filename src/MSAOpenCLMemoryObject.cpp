@@ -9,15 +9,9 @@ namespace msa {
 		clMemObject = NULL;
 	}
 	
-	
 	OpenCLMemoryObject::~OpenCLMemoryObject() {
 		ofLog(OF_LOG_VERBOSE, "OpenCLMemoryObject::~OpenCLMemoryObject");
 		if(clMemObject) clReleaseMemObject(clMemObject);
-	}
-	
-	
-	cl_mem &OpenCLMemoryObject::getCLMem() {
-		return clMemObject;
 	}
 	
 	void OpenCLMemoryObject::memoryObjectInit() {

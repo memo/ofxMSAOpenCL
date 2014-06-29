@@ -5,6 +5,7 @@
 #include "MSAOpenCLKernel.h"
 #include "MSAOpenCLProgram.h"
 #include "MSAOpenCLBuffer.h"
+#include "MSAOpenCLBufferManagedT.h"
 #include "MSAOpenCLTypes.h"
 #include "MSAOpenCLImage.h"
 #include "MSAOpenCLImagePingPong.h"
