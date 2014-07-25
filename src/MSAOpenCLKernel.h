@@ -44,12 +44,12 @@ namespace msa {
 		// globalSize and localSize should be int arrays with same number of dimensions as numDimensions
 		// leave localSize blank to let OpenCL determine optimum
 		cl_int  bindOpenGLInterOp();
-		void	run(int numDimensions, size_t *globalSize, size_t *localSize = NULL);
+		void	run(int numDimensions, size_t *globalSize, size_t *localSize = NULL, cl_uint eventsInWaitList_ = 0, const cl_event* eventWaitList_ = NULL, cl_event* runEvent_ = NULL);
 		cl_int  unbindOpenGLInterOp();
 
 		// some wrappers for above to create the size arrays on the run
 		void	run1D(size_t globalSize, size_t localSize = 0);
-		void	run2D(size_t globalSizeX, size_t globalSizeY, size_t localSizeX = 0, size_t localSizeY = 0);
+		void	run2D(size_t globalSizeX, size_t globalSizeY, size_t localSizeX = 0, size_t localSizeY = 0, cl_uint eventsInWaitList_ = 0, const cl_event* eventWaitList_ = NULL, cl_event* runEvent_ = NULL);
 		void	run3D(size_t globalSizeX, size_t globalSizeY, size_t globalSizeZ, size_t localSizeX = 0, size_t localSizeY = 0, size_t localSizeZ = 0);
 
 

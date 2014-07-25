@@ -32,8 +32,7 @@ namespace msa {
 		// parameters with default values can be omited
 		void initBuffer(	int numberOfBytes,
 						cl_mem_flags memFlags = CL_MEM_READ_WRITE,
-						void *dataPtr = NULL,
-						bool blockingWrite = CL_FALSE);
+						void *dataPtr = NULL);
 		
 		
 		// create buffer from the GL Object - e.g. VBO (they share memory space on device)
@@ -48,12 +47,19 @@ namespace msa {
 				  int numberOfBytes,
 				  bool blockingRead = CL_TRUE);
 		
-		// write from main memory (dataPtr), into device memory
+		/// write from main memory (dataPtr), into device memory
+		/// This will perform a blocking write
 		void write(void *dataPtr,
 				   int startOffsetBytes,
+				   int numberOfBytes
+				   );
+
+				// write from main memory (dataPtr), into device memory
+		void writeAsync(void *dataPtr,
+				   int startOffsetBytes,
 				   int numberOfBytes,
-				   bool blockingWrite = CL_FALSE);
-		
+				   cl_event& writeEvent_);
+
 		
 		// copy data from another object on device memory
 		void copyFrom(OpenCLBuffer &srcBuffer,

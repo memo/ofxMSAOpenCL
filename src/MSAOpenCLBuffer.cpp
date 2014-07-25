@@ -9,8 +9,7 @@ namespace msa {
 	
 	void OpenCLBuffer::initBuffer(int numberOfBytes,
 								  cl_mem_flags memFlags,
-								  void *dataPtr,
-								  bool blockingWrite)
+								  void *dataPtr)
 	{
 		
 		ofLog(OF_LOG_VERBOSE, "OpenCLBuffer::initBuffer");
@@ -22,7 +21,7 @@ namespace msa {
 		assert(err == CL_SUCCESS);
 		assert(clMemObject);
 		
-		if(dataPtr) write(dataPtr, 0, numberOfBytes, blockingWrite);
+		if(dataPtr) write(dataPtr, 0, numberOfBytes);
 	}
 	
 	
@@ -54,9 +53,17 @@ namespace msa {
 	}
 	
 	
-	void OpenCLBuffer::write(void *dataPtr, int startOffsetBytes, int numberOfBytes, bool blockingWrite) {
+	void OpenCLBuffer::write(void *dataPtr, int startOffsetBytes, int numberOfBytes) {
 		if (hasCorrespondingGLObject) lockGLObject();
-		cl_int err = clEnqueueWriteBuffer(pOpenCL->getQueue(), clMemObject, blockingWrite, startOffsetBytes, numberOfBytes, dataPtr, 0, NULL, NULL);
+		cl_event writeOpEvent;
+		cl_int err = clEnqueueWriteBuffer(pOpenCL->getQueue(), clMemObject, CL_TRUE, startOffsetBytes, numberOfBytes, dataPtr, 0, NULL, &writeOpEvent);
+		if (hasCorrespondingGLObject) unlockGLObject();
+		assert(err == CL_SUCCESS);
+	}
+
+	void OpenCLBuffer::writeAsync(void *dataPtr, int startOffsetBytes, int numberOfBytes, cl_event& writeEvent_) {
+		if (hasCorrespondingGLObject) lockGLObject();
+		cl_int err = clEnqueueWriteBuffer(pOpenCL->getQueue(), clMemObject, CL_FALSE, startOffsetBytes, numberOfBytes, dataPtr, 0, NULL, &writeEvent_);
 		if (hasCorrespondingGLObject) unlockGLObject();
 		assert(err == CL_SUCCESS);
 	}

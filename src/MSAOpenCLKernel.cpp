@@ -118,11 +118,11 @@ namespace msa {
 
 	// ----------------------------------------------------------------------
 
-	void OpenCLKernel::run(int numDimensions, size_t *globalSize, size_t *localSize) {
+	void OpenCLKernel::run(int numDimensions, size_t *globalSize, size_t *localSize, cl_uint eventsInWaitList_, const cl_event* eventWaitList_, cl_event* runEvent_) {
 		if (clKernel== NULL) return;
 		cl_int err=CL_SUCCESS;
 		bindOpenGLInterOp();
-		err = clEnqueueNDRangeKernel(pOpenCL->getQueue(), clKernel, numDimensions, NULL, globalSize, localSize, 0, 0, 0);
+		err = clEnqueueNDRangeKernel(pOpenCL->getQueue(), clKernel, numDimensions, NULL, globalSize, localSize, eventsInWaitList_, eventWaitList_, runEvent_);
 		if (err != CL_SUCCESS) {
 			ofLogNotice() << getCLErrorString(err);
 		}
@@ -163,7 +163,7 @@ namespace msa {
 
 	// ----------------------------------------------------------------------
 
-	void OpenCLKernel::run2D(size_t globalSizeX, size_t globalSizeY, size_t localSizeX, size_t localSizeY) {
+	void OpenCLKernel::run2D(size_t globalSizeX, size_t globalSizeY, size_t localSizeX, size_t localSizeY, cl_uint eventsInWaitList_ , const cl_event* eventWaitList_, cl_event* runEvent_ ) {
 		// tig: make sure localSizeX * localSizeY <= maxWorkGroupSize
 		if (localSizeX * localSizeY > pOpenCL->info.maxWorkGroupSize) {
 			ofLogError() << "Could not run OpenCL 2D kernel at workgroup size: " << localSizeY * localSizeX << ". Max supported local (=workgroup) size: " << pOpenCL->info.maxWorkGroupSize;
@@ -176,10 +176,11 @@ namespace msa {
 			size_t localSizes[2];
 			localSizes[0] = localSizeX;
 			localSizes[1] = localSizeY;
-			run(2, globalSizes, localSizes);
+			run(2, globalSizes, localSizes, eventsInWaitList_ , eventWaitList_, runEvent_);
 		} else {
-			run(2, globalSizes, NULL);
+			run(2, globalSizes, NULL, eventsInWaitList_ , eventWaitList_, runEvent_);
 		}
+		// TODO: return an event!
 	}
 
 	// ----------------------------------------------------------------------

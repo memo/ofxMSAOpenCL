@@ -160,7 +160,7 @@ namespace msa {
 
 	OpenCLBuffer* OpenCL::createBuffer(int numberOfBytes, cl_mem_flags memFlags, void *dataPtr, bool blockingWrite) {
 		OpenCLBuffer *clBuffer = new OpenCLBuffer();
-		clBuffer->initBuffer(numberOfBytes, memFlags, dataPtr, blockingWrite);
+		clBuffer->initBuffer(numberOfBytes, memFlags, dataPtr);
 		memObjects.push_back(clBuffer);
 		return clBuffer;
 	}
