@@ -128,7 +128,7 @@ namespace msa {
 		std::shared_ptr<OpenCLKernel>	kernel(string kernelName);
 		
 		
-		vector<std::shared_ptr<OpenCLProgram> >	getPrograms() {
+		const map<string, std::shared_ptr<OpenCLProgram> >&	getPrograms() {
 			return programs;
 		}
 		
@@ -187,10 +187,10 @@ namespace msa {
 		cl_context						clContext;
 		cl_command_queue				clQueue;
 		
-		vector<std::shared_ptr<OpenCLProgram> >		programs;
-		map<string, std::shared_ptr<OpenCLKernel> >	kernels;
-		vector<OpenCLMemoryObject*>					memObjects;
-		bool										isSetup;
+		map<string, std::shared_ptr<OpenCLProgram> > programs;
+		map<string, std::shared_ptr<OpenCLKernel> >	 kernels;
+		vector<OpenCLMemoryObject*>					 memObjects;
+		bool										 isSetup;
 		
 		void createQueue();
 	};

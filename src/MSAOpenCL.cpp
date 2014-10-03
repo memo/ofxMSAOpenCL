@@ -19,44 +19,17 @@ namespace msa {
 	}
 
 	OpenCL::~OpenCL() {
-		ofLog(OF_LOG_VERBOSE, "OpenCL::~OpenCL");
-
 		clFinish(clQueue);
 
 		for(int i=0; i<memObjects.size(); i++) delete memObjects[i];	// FIX
-		for(auto it = kernels.begin(); it !=kernels.end(); ++it) it->second.reset();
-		for(int i=0; i<programs.size(); i++) programs[i].reset();
+		kernels.clear();
+		clearPrograms();
 
 		clReleaseCommandQueue(clQueue);
 		clReleaseContext(clContext);
+		ofLog(OF_LOG_VERBOSE, "OpenCL::~OpenCL");
 	}
 
-	
-////    void OpenCL::setupWithDevice(int device) {
-////		ofLog(OF_LOG_VERBOSE, "OpenCL::setupWithDevice");
-////        vector<int> devices;
-////        devices.push_back(device);
-////        setupWithDevices(devices);
-////    }
-////    
-////    void OpenCL::setupFromOpenGLWithDevice(int device) {
-////		ofLog(OF_LOG_VERBOSE, "OpenCL::setupFromOpenGLWithDevice");
-////        vector<int> devices;
-////        devices.push_back(device);
-////        setupFromOpenGLWithDevices(devices);
-////    }
-////
-////    
-//    
-//    void OpenCL::setupFromOpenGL(vector<int> devices) {
-//		ofLog(OF_LOG_VERBOSE, "OpenCL::setupFromOpenGL ");
-//        
-//        if(isSetup) {
-//			ofLog(OF_LOG_VERBOSE, "... already setup. returning");
-//			return;
-//		}
-//
-//    }
     
 	void OpenCL::setup(int clDeviceType, int deviceNumber) {
 		ofLog(OF_LOG_VERBOSE, "OpenCL::setup " + ofToString(clDeviceType));
@@ -164,23 +137,24 @@ namespace msa {
 		ofLog(OF_LOG_VERBOSE, "OpenCL::loadProgramFromFile");
 		std::shared_ptr<OpenCLProgram> p = std::shared_ptr<OpenCLProgram> (new OpenCLProgram());
 		p->loadFromFile(filename, isBinary);
-		programs.push_back(p);
+		programs[filename] = p;
 		return p;
 	}
 
 
 	std::shared_ptr<OpenCLProgram>  OpenCL::loadProgramFromSource(string source) {
+		static int program_counter = 0;
+		/// todo: maybe hash source to get a more reliable identifier for program.
 		ofLog(OF_LOG_VERBOSE, "OpenCL::loadProgramFromSource");
 		std::shared_ptr<OpenCLProgram> p = std::shared_ptr<OpenCLProgram> (new OpenCLProgram());
 		p->loadFromSource(source);
-		programs.push_back(p);
+		programs["#from_source_" + ofToString(program_counter++)] = p;
 		return p;
 	} 
 
-
 	std::shared_ptr<OpenCLKernel> OpenCL::loadKernel(string kernelName, std::shared_ptr<OpenCLProgram> program) {
 		ofLog(OF_LOG_VERBOSE, "OpenCL::loadKernel " + kernelName + ", " + ofToString((int)program.get()));
-		if(program.get() == NULL) program = programs[programs.size() - 1];
+		if(program.get() == NULL) program = (programs.begin()->second);
 		std::shared_ptr<OpenCLKernel> k = program->loadKernel(kernelName);
 		kernels[kernelName] = k;
 		return k;
