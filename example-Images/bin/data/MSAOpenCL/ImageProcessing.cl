@@ -85,7 +85,7 @@ __kernel void msa_greyscale(read_only image2d_t srcImage, write_only image2d_t d
 __kernel void msa_invert(read_only image2d_t srcImage, write_only image2d_t dstImage) {                                                                                            
 	int2 coords = (int2)(get_global_id(0), get_global_id(1));
 	float4 color = read_imagef(srcImage, CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST, coords);
-	color = (float4)(1.0f, 1.0f, 1.0f, 1.0f) - color;
+	color = (float4)(1.0f, 1.0f, 1.0f, 1.0f) - (float4)(color.xyz, 0.0f);
 	write_imagef(dstImage, coords, color);
 }  
 
