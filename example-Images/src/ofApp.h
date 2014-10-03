@@ -14,22 +14,35 @@ class ofApp : public ofBaseApp{
 	
 	msa::OpenCL			openCL;
 	msa::OpenCLImage	clImage[2];				// two OpenCL images
-	int					activeImageIndex = 0;
+	int					activeImageIndex;
 	
 	unsigned char		*pixels;				// temp buffer
 	
 	
 	// parameters
-	bool				doBlur		= true;
-	int					blurAmount	= 5;
-	bool				doFlipX		= true;
-	bool				doFlipY		= false;
-	bool				doGreyscale	= true;
-	bool				doInvert	= true;
-	bool				doThreshold	= false;
-	cl_float			threshLevel	= 0.5;
+	bool				doBlur;
+	int					blurAmount;
+	bool				doFlipX;
+	bool				doFlipY;
+	bool				doGreyscale;
+	bool				doInvert;
+	bool				doThreshold;
+	cl_float			threshLevel;
 
 public:
+
+	ofApp()
+	: doBlur(true)
+	, activeImageIndex(0)
+	, blurAmount(5)
+	, doFlipX(true)
+	, doFlipY(false)
+	, doGreyscale(true)
+	, doInvert(true)
+	, doThreshold(false)
+	, threshLevel(0.5)
+	{};
+
 	void setup();
 	void update();
 	void draw();

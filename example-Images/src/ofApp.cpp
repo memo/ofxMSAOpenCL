@@ -1,5 +1,7 @@
 #include "ofApp.h"
 
+ofImage mImgKittens;
+
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofBackground(50, 50, 50);
@@ -15,9 +17,9 @@ void ofApp::setup(){
 	
 	// init grabber
 
-	videoGrabber.initGrabber(640, 480);
-	vidWidth	= videoGrabber.getWidth();
-	vidHeight	= videoGrabber.getHeight();
+	// videoGrabber.initGrabber(640, 480);
+	vidWidth	= 640;
+	vidHeight	= 480;
 	
 
 	// allocate temp buffer
@@ -34,25 +36,28 @@ void ofApp::setup(){
 
 	// load and compile OpenCL program
 	openCL.loadProgramFromFile("MSAOpenCL/ImageProcessing.cl");
-	
+
+	mImgKittens.loadImage("kitten.png");
 	
 	// load kernels
 	openCL.loadKernel("msa_boxblur");
-	openCL.loadKernel("msa_flipx");
-	openCL.loadKernel("msa_flipy");
-	openCL.loadKernel("msa_greyscale");
-	openCL.loadKernel("msa_invert");
-	openCL.loadKernel("msa_threshold");
+	//openCL.loadKernel("msa_flipx");
+	//openCL.loadKernel("msa_flipy");
+	//openCL.loadKernel("msa_greyscale");
+	//openCL.loadKernel("msa_invert");
+	//openCL.loadKernel("msa_threshold");
+
+	
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
 	
 	// grab new frame
-	videoGrabber.update();
+	//videoGrabber.update();
 	
 	// if there is a new frame....
-	if(videoGrabber.isFrameNew()) {
+	//if(videoGrabber.isFrameNew()) {
 		
 		// RGB textures don't seem to work well. so need to copy the vidgrabber data into a RGBA texture
 		int pixelIndex = 0;
@@ -61,9 +66,9 @@ void ofApp::update(){
 				int indexRGB	= pixelIndex * 3;
 				int indexRGBA	= pixelIndex * 4;
 				
-				pixels[indexRGBA  ] = videoGrabber.getPixels()[indexRGB  ];
-				pixels[indexRGBA+1] = videoGrabber.getPixels()[indexRGB+1];
-				pixels[indexRGBA+2] = videoGrabber.getPixels()[indexRGB+2];
+				pixels[indexRGBA  ] = mImgKittens.getPixels()[indexRGB  ];
+				pixels[indexRGBA+1] = mImgKittens.getPixels()[indexRGB+1];
+				pixels[indexRGBA+2] = mImgKittens.getPixels()[indexRGB+2];
 				pixels[indexRGBA+3] = 255;
 				pixelIndex++;
 			}
@@ -86,7 +91,7 @@ void ofApp::update(){
 			}
 		}
 		
-		if(doFlipX) {
+		/*if(doFlipX) {
 			shared_ptr<msa::OpenCLKernel>(kernel) = openCL.kernel("msa_flipx");
 			kernel->setArg(0, clImage[activeImageIndex]);
 			kernel->setArg(1, clImage[1-activeImageIndex]);
@@ -126,7 +131,7 @@ void ofApp::update(){
 			kernel->setArg(2, threshLevel);
 			kernel->run2D(vidWidth, vidHeight);
 			activeImageIndex = 1 - activeImageIndex;
-		}
+		}*/
 		
 		
 		// calculate capture fps
@@ -135,12 +140,13 @@ void ofApp::update(){
 		float timeDiff = nowTime - lastTime;
 		if(timeDiff > 0 ) captureFPS = 0.9f * captureFPS + 0.1f / timeDiff;
 		lastTime = nowTime;
-	}
+	
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	videoGrabber.draw(0, 200);
+	//videoGrabber.draw(0, 200);
+	mImgKittens.draw(0,200);
 
 	// make sure all OpenCL kernels have finished executing before drawing
 	openCL.finish();
@@ -225,11 +231,11 @@ void ofApp::keyPressed(int key){
 		case ' ':
 			openCL.loadProgramFromFile("MSAOpenCL/ImageProcessing.cl");
 			openCL.loadKernel("msa_boxblur");
-			openCL.loadKernel("msa_flipx");
-			openCL.loadKernel("msa_flipy");
-			openCL.loadKernel("msa_greyscale");
-			openCL.loadKernel("msa_invert");
-			openCL.loadKernel("msa_threshold");
+			//openCL.loadKernel("msa_flipx");
+			//openCL.loadKernel("msa_flipy");
+			//openCL.loadKernel("msa_greyscale");
+			//openCL.loadKernel("msa_invert");
+			//openCL.loadKernel("msa_threshold");
 			break;
 	}
 
