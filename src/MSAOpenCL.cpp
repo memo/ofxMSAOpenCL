@@ -73,12 +73,13 @@ namespace msa {
 		if(deviceInfo.size() == 0) getDeviceInfos(CL_DEVICE_TYPE_GPU);
         deviceNumber = (deviceNumber + getNumDevices()) % getNumDevices();
         clDevice = deviceInfo[deviceNumber].clDeviceId;
-		
+		cl_int err;
+
 #ifdef TARGET_OSX	
 		CGLContextObj kCGLContext = CGLGetCurrentContext();
 		CGLShareGroupObj kCGLShareGroup = CGLGetShareGroup(kCGLContext);
 		cl_context_properties properties[] = { CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE, (cl_context_properties)kCGLShareGroup, 0 };
-		cl_int err;
+		
 		clContext = clCreateContext(properties, 0, 0, NULL, NULL, &err);
 #elif defined _WIN32
 		//aqcuire shared context on windows.
@@ -229,7 +230,6 @@ namespace msa {
 	
 	int OpenCL::getDeviceInfos(int clDeviceType) {
 		cl_int err;
-		
 
 		cl_platform_id platformIdBuffer[100];
 		cl_uint numPlatforms=0;
@@ -253,8 +253,8 @@ namespace msa {
 		for ( int p=0;	p<numPlatforms;	p++ ) {
 			cl_platform_id platformId = platformIdBuffer[p];
 			err = clGetDeviceIDs(platformId, clDeviceType, numDevices, clDevices, &numDevicesFound);
-			if ( err != CL_SUCCESS )
-				continue;
+			if ( err == CL_SUCCESS )
+				break;
 		}
 
 		ofLog(OF_LOG_VERBOSE, ofToString(numDevicesFound, 0) + " devices found, on " + ofToString(numPlatforms, 0) + " platforms\n");
