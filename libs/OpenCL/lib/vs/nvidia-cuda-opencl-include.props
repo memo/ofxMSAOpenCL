@@ -2,9 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <NV_SDK_PATH>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5</NV_SDK_PATH>
+    <NV_SDK_PATH>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5</NV_SDK_PATH>
   </PropertyGroup>
-  <PropertyGroup />
+  <PropertyGroup>
+    <_PropertySheetDisplayName>nvidia-cuda-opencl-include-6.5</_PropertySheetDisplayName>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(NV_SDK_PATH)\include</AdditionalIncludeDirectories>
