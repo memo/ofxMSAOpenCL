@@ -103,11 +103,11 @@ void ofApp::update(){
 		
 		
 		if(doBlur) {
-			msa::OpenCLKernel *kernel = openCL.kernel("msa_boxblur");
+			shared_ptr<msa::OpenCLKernel>(kernel) = openCL.kernel("msa_boxblur");
 			for(int i=0; i<blurAmount; i++) {
 				cl_int offset = i * i / 2 + 1;
-				kernel->setArg(0, clImage[activeImageIndex].getCLMem());
-				kernel->setArg(1, clImage[1-activeImageIndex].getCLMem());
+				kernel->setArg(0, clImage[activeImageIndex]);
+				kernel->setArg(1, clImage[1-activeImageIndex]);
 				kernel->setArg(2, offset);
 				kernel->run2D(vidWidth, vidHeight);
 				activeImageIndex = 1 - activeImageIndex;
@@ -115,42 +115,42 @@ void ofApp::update(){
 		}
 		
 		if(doFlipX) {
-			msa::OpenCLKernel *kernel = openCL.kernel("msa_flipx");
-			kernel->setArg(0, clImage[activeImageIndex].getCLMem());
-			kernel->setArg(1, clImage[1-activeImageIndex].getCLMem());
+			shared_ptr<msa::OpenCLKernel>(kernel) = openCL.kernel("msa_flipx");
+			kernel->setArg(0, clImage[activeImageIndex]);
+			kernel->setArg(1, clImage[1-activeImageIndex]);
 			kernel->run2D(vidWidth, vidHeight);
 			activeImageIndex = 1 - activeImageIndex;
 		}
 		
 	
 		if(doFlipY) {
-			msa::OpenCLKernel *kernel = openCL.kernel("msa_flipy");
-			kernel->setArg(0, clImage[activeImageIndex].getCLMem());
-			kernel->setArg(1, clImage[1-activeImageIndex].getCLMem());
+			shared_ptr<msa::OpenCLKernel>(kernel) = openCL.kernel("msa_flipy");
+			kernel->setArg(0, clImage[activeImageIndex]);
+			kernel->setArg(1, clImage[1-activeImageIndex]);
 			kernel->run2D(vidWidth, vidHeight);
 			activeImageIndex = 1 - activeImageIndex;
 		}
 		
 		if(doGreyscale) {
-			msa::OpenCLKernel *kernel = openCL.kernel("msa_greyscale");
-			kernel->setArg(0, clImage[activeImageIndex].getCLMem());
-			kernel->setArg(1, clImage[1-activeImageIndex].getCLMem());
+			shared_ptr<msa::OpenCLKernel>(kernel) = openCL.kernel("msa_greyscale");
+			kernel->setArg(0, clImage[activeImageIndex]);
+			kernel->setArg(1, clImage[1-activeImageIndex]);
 			kernel->run2D(vidWidth, vidHeight);
 			activeImageIndex = 1 - activeImageIndex;
 		}
 		
 		if(doInvert) {
-			msa::OpenCLKernel *kernel = openCL.kernel("msa_invert");
-			kernel->setArg(0, clImage[activeImageIndex].getCLMem());
-			kernel->setArg(1, clImage[1-activeImageIndex].getCLMem());
+			shared_ptr<msa::OpenCLKernel>(kernel) = openCL.kernel("msa_invert");
+			kernel->setArg(0, clImage[activeImageIndex]);
+			kernel->setArg(1, clImage[1-activeImageIndex]);
 			kernel->run2D(vidWidth, vidHeight);
 			activeImageIndex = 1 - activeImageIndex;
 		}
 	
 		if(doThreshold) {
-			msa::OpenCLKernel *kernel = openCL.kernel("msa_threshold");
-			kernel->setArg(0, clImage[activeImageIndex].getCLMem());
-			kernel->setArg(1, clImage[1-activeImageIndex].getCLMem());
+			shared_ptr<msa::OpenCLKernel>(kernel)  = openCL.kernel("msa_threshold");
+			kernel->setArg(0, clImage[activeImageIndex]);
+			kernel->setArg(1, clImage[1-activeImageIndex]);
 			kernel->setArg(2, threshLevel);
 			kernel->run2D(vidWidth, vidHeight);
 			activeImageIndex = 1 - activeImageIndex;
