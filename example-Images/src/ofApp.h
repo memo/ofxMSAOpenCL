@@ -3,9 +3,32 @@
 
 
 #include "ofMain.h"
+#include "MSAOpenCL.h"
 
 class ofApp : public ofBaseApp{
+	ofVideoGrabber		videoGrabber;
+	int					vidWidth;
+	int					vidHeight;
+	float				captureFPS;				// video capture fps
 	
+	
+	msa::OpenCL			openCL;
+	msa::OpenCLImage	clImage[2];				// two OpenCL images
+	int					activeImageIndex = 0;
+	
+	unsigned char		*pixels;				// temp buffer
+	
+	
+	// parameters
+	bool				doBlur		= true;
+	int					blurAmount	= 5;
+	bool				doFlipX		= true;
+	bool				doFlipY		= false;
+	bool				doGreyscale	= true;
+	bool				doInvert	= true;
+	bool				doThreshold	= false;
+	cl_float			threshLevel	= 0.5;
+
 public:
 	void setup();
 	void update();

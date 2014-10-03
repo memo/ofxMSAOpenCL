@@ -1,33 +1,5 @@
 #include "ofApp.h"
 
-#include "MSAOpenCL.h"
-
-ofVideoGrabber		videoGrabber;
-int					vidWidth;
-int					vidHeight;
-float				captureFPS;				// video capture fps
-
-
-msa::OpenCL			openCL;
-msa::OpenCLImage	clImage[2];				// two OpenCL images
-int					activeImageIndex = 0;
-
-unsigned char		*pixels;				// temp buffer
-
-
-// parameters
-bool				doBlur		= true;
-int					blurAmount	= 5;
-bool				doFlipX		= true;
-bool				doFlipY		= false;
-bool				doGreyscale	= true;
-bool				doInvert	= true;
-bool				doThreshold	= false;
-cl_float			threshLevel	= 0.5;
-
-
-
-
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofBackground(50, 50, 50);
@@ -42,7 +14,8 @@ void ofApp::setup(){
 	
 	
 	// init grabber
-	videoGrabber.initGrabber(640, 480);	
+
+	videoGrabber.initGrabber(640, 480);
 	vidWidth	= videoGrabber.getWidth();
 	vidHeight	= videoGrabber.getHeight();
 	
@@ -53,7 +26,6 @@ void ofApp::setup(){
 
 	// init OpenCL from OpenGL context to enable GL-CL data sharing
 	openCL.setupFromOpenGL();
-	
 	
 	// create OpenCL textures and related OpenGL textures
 	clImage[0].initWithTexture(vidWidth, vidHeight, GL_RGBA);
@@ -188,6 +160,7 @@ void ofApp::draw(){
 					   + "\n doInvert (i)       : " + (doInvert ? "X" : "")
 					   + "\n doThreshold (t)    : " + (doThreshold ? "X" : "")
 					   + "\n   threshLevel ([]) : " + ofToString(threshLevel, 2)
+					   + "\n SPACEBAR           : Reload & recompile OpenCL source." 
 					   , 30, 30);
 }
 
@@ -247,6 +220,16 @@ void ofApp::keyPressed(int key){
 		case ']':
 			threshLevel += 0.05;
 			if(threshLevel>1) threshLevel = 1;
+			break;
+			
+		case ' ':
+			openCL.loadProgramFromFile("MSAOpenCL/ImageProcessing.cl");
+			openCL.loadKernel("msa_boxblur");
+			openCL.loadKernel("msa_flipx");
+			openCL.loadKernel("msa_flipy");
+			openCL.loadKernel("msa_greyscale");
+			openCL.loadKernel("msa_invert");
+			openCL.loadKernel("msa_threshold");
 			break;
 	}
 
