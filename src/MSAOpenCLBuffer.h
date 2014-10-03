@@ -1,9 +1,10 @@
 /***********************************************************************
  
- OpenCL Buffer Memory Object
+ OpenCL Buffer Memory Object Low level wrapper
+ Allocates and manages only device side buffer
  You can either instantiate this class directly. e.g.:
  OpenCLBuffer myBuffer;
- myImage.initFromGLObject(myVbo);
+ myBuffer.initFromGLObject(myVbo);
  
  or create it via Instead use OpenCL::createBufferXXXX. e.g.:
  OpenCLBuffer *myBuffer = openCL.createBufferFromGLObject(myVBO);
@@ -41,7 +42,8 @@ namespace msa {
 							  cl_mem_flags memFlags = CL_MEM_READ_WRITE);
 		
 		
-		// read from device memory, into main memoy (into dataPtr)
+		// read from device memory, into main memory (into dataPtr)
+        // note: offset and count is in bytes
 		void read(void *dataPtr,
 				  int startOffsetBytes,
 				  int numberOfBytes,

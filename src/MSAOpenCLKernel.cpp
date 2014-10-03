@@ -145,10 +145,10 @@ namespace msa {
 	void OpenCLKernel::run1D(size_t globalSize, size_t localSize) {
 		size_t globalSizes[1];
 
-		if (localSize > pOpenCL->info.maxWorkGroupSize) {
-			ofLogError() << "Could not run OpenCL 1D kernel at workgroup size: " << localSize << ". Max supported local (=workgroup) size: " << pOpenCL->info.maxWorkGroupSize;
-			return;
-		} 
+//		if (localSize > pOpenCL->info.maxWorkGroupSize) {
+//			ofLogError() << "Could not run OpenCL 1D kernel at workgroup size: " << localSize << ". Max supported local (=workgroup) size: " << pOpenCL->info.maxWorkGroupSize;
+//			return;
+//		} 
 		if(localSize > 0) {
 			// tig: make sure localSize <= maxWorkGroupSize
 			size_t localSizes[1];
@@ -165,10 +165,10 @@ namespace msa {
 
 	void OpenCLKernel::run2D(size_t globalSizeX, size_t globalSizeY, size_t localSizeX, size_t localSizeY, cl_uint eventsInWaitList_ , const cl_event* eventWaitList_, cl_event* runEvent_ ) {
 		// tig: make sure localSizeX * localSizeY <= maxWorkGroupSize
-		if (localSizeX * localSizeY > pOpenCL->info.maxWorkGroupSize) {
-			ofLogError() << "Could not run OpenCL 2D kernel at workgroup size: " << localSizeY * localSizeX << ". Max supported local (=workgroup) size: " << pOpenCL->info.maxWorkGroupSize;
-			return;
-		}
+//		if (localSizeX * localSizeY > pOpenCL->info.maxWorkGroupSize) {
+//			ofLogError() << "Could not run OpenCL 2D kernel at workgroup size: " << localSizeY * localSizeX << ". Max supported local (=workgroup) size: " << pOpenCL->info.maxWorkGroupSize;
+//			return;
+//		}
 		size_t globalSizes[2];
 		globalSizes[0] = roundToNextMultipleOf(globalSizeX,localSizeX);	// make sure global size is a multiple of local size
 		globalSizes[1] = roundToNextMultipleOf(globalSizeY,localSizeY);
@@ -187,10 +187,10 @@ namespace msa {
 
 	void OpenCLKernel::run3D(size_t globalSizeX, size_t globalSizeY, size_t globalSizeZ, size_t localSizeX, size_t localSizeY, size_t localSizeZ) {
 		// tig: make sure localSizeX * localSizeY * localSizeZ <= maxWorkGroupSize
-		if (localSizeX * localSizeY * localSizeZ > pOpenCL->info.maxWorkGroupSize) {
-			ofLogError() << "Could not run OpenCL 3D kernel at workgroup size: " << localSizeZ * localSizeY * localSizeX << ". Max supported local (=workgroup) size: " << pOpenCL->info.maxWorkGroupSize;
-			return;
-		}
+//		if (localSizeX * localSizeY * localSizeZ > pOpenCL->info.maxWorkGroupSize) {
+//			ofLogError() << "Could not run OpenCL 3D kernel at workgroup size: " << localSizeZ * localSizeY * localSizeX << ". Max supported local (=workgroup) size: " << pOpenCL->info.maxWorkGroupSize;
+//			return;
+//		}
 		size_t globalSizes[3];
 		globalSizes[0] = roundToNextMultipleOf(globalSizeX,localSizeX);	// make sure global sizes are a multiple of local size
 		globalSizes[1] = roundToNextMultipleOf(globalSizeY,localSizeY);
@@ -254,7 +254,7 @@ namespace msa {
 		if ( !clKernel ) return false;
 		// ----------| invariant: we have a valid kernel.
 
-		// if this object has an openGL representation it needs to be flagged as occupied 
+		// if this object has an openGL representation it needs to be flagged as blocked
 		// whenever openCL runs on it. 
 		// we'll do this automatically in run(), but we first have to register all objects 
 		// that have such dependencies.
@@ -271,5 +271,7 @@ namespace msa {
 
 	// ----------------------------------------------------------------------
 
+
+	
 }
 

@@ -20,12 +20,6 @@ namespace msa {
 	
 	// ----------------------------------------------------------------------
 	
-	cl_mem &OpenCLMemoryObject::getCLMem() {
-		return clMemObject;
-	}
-	
-	// ----------------------------------------------------------------------
-	
 	void OpenCLMemoryObject::memoryObjectInit() {
 		ofLog(OF_LOG_VERBOSE, "OpenCLMemoryObject::memoryObjectInit");
 		pOpenCL = OpenCL::currentOpenCL;

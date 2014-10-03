@@ -24,22 +24,21 @@ namespace msa {
 	public:
 		virtual ~OpenCLMemoryObject();
 		
-		cl_mem	&getCLMem();
-		
-		operator cl_mem&() {
-			return getCLMem();
-		}
-		OpenCLMemoryObject();
-		
+        cl_mem& getCLMem() { return clMemObject; }
+		operator cl_mem&() { return getCLMem(); }
+	
 		/// Takes ownership of corresponding OpenGL object, if any
 		bool lockGLObject();
 		/// Releases ownership of corresponding OpenGL object, if any
 		bool unlockGLObject();
-		
+	
 	protected:
+		OpenCLMemoryObject();
+		
 		
 		cl_mem		clMemObject;
 		OpenCL*		pOpenCL;
+		
 		void memoryObjectInit();
 
 		bool hasCorrespondingGLObject;
