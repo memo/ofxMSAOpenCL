@@ -145,6 +145,7 @@ namespace msa {
 		string getInfoAsString(int deviceNumber = 0);
 		
 		struct DeviceInfo {
+			cl_platform_id clPlatformId; /// < platform this device belongs to
             cl_device_id clDeviceId;
 			cl_char		vendorName[1024];
 			cl_char		deviceName[1024];
@@ -183,7 +184,7 @@ namespace msa {
 		
 	protected:
 		cl_device_id					clDevice;
-		cl_platform_id					mPlatformID;
+		/*cl_platform_id					mPlatformID;*/
 		cl_context						clContext;
 		cl_command_queue				clQueue;
 		
