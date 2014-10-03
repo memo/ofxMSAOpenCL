@@ -169,18 +169,23 @@ namespace msa {
 //			ofLogError() << "Could not run OpenCL 2D kernel at workgroup size: " << localSizeY * localSizeX << ". Max supported local (=workgroup) size: " << pOpenCL->info.maxWorkGroupSize;
 //			return;
 //		}
-		size_t globalSizes[2];
-		globalSizes[0] = roundToNextMultipleOf(globalSizeX,localSizeX);	// make sure global size is a multiple of local size
-		globalSizes[1] = roundToNextMultipleOf(globalSizeY,localSizeY);
+		size_t globalSizes[2] = { 0, 0 };
 		if(localSizeY && localSizeX) {
+			globalSizes[0] = roundToNextMultipleOf(globalSizeX,localSizeX);	// make sure global size is a multiple of local size, if localsize specified
+			globalSizes[1] = roundToNextMultipleOf(globalSizeY,localSizeY);
 			size_t localSizes[2];
 			localSizes[0] = localSizeX;
 			localSizes[1] = localSizeY;
 			run(2, globalSizes, localSizes, eventsInWaitList_ , eventWaitList_, runEvent_);
 		} else {
+			// no local size specified - let driver figure out how to break up workload.
+			globalSizes[0] = globalSizeX;
+			globalSizes[1] = globalSizeY;
 			run(2, globalSizes, NULL, eventsInWaitList_ , eventWaitList_, runEvent_);
 		}
-		// TODO: return an event!
+		/// note: if runEvent_ contains a cl_event pointer other than NULL,
+		/// runEvent_ will be set to a unique identifier to this kernel execution instance
+		/// as a side-effect.
 	}
 
 	// ----------------------------------------------------------------------
