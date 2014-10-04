@@ -41,11 +41,11 @@ void ofApp::setup(){
 	
 	// load kernels
 	openCL.loadKernel("msa_boxblur");
-	//openCL.loadKernel("msa_flipx");
-	//openCL.loadKernel("msa_flipy");
-	//openCL.loadKernel("msa_greyscale");
-	//openCL.loadKernel("msa_invert");
-	//openCL.loadKernel("msa_threshold");
+	openCL.loadKernel("msa_flipx");
+	openCL.loadKernel("msa_flipy");
+	openCL.loadKernel("msa_greyscale");
+	openCL.loadKernel("msa_invert");
+	openCL.loadKernel("msa_threshold");
 
 	
 }
@@ -91,7 +91,7 @@ void ofApp::update(){
 			}
 		}
 		
-		/*if(doFlipX) {
+		if(doFlipX) {
 			shared_ptr<msa::OpenCLKernel>(kernel) = openCL.kernel("msa_flipx");
 			kernel->setArg(0, clImage[activeImageIndex]);
 			kernel->setArg(1, clImage[1-activeImageIndex]);
@@ -131,7 +131,7 @@ void ofApp::update(){
 			kernel->setArg(2, threshLevel);
 			kernel->run2D(vidWidth, vidHeight);
 			activeImageIndex = 1 - activeImageIndex;
-		}*/
+		}
 		
 		
 		// calculate capture fps
@@ -231,11 +231,11 @@ void ofApp::keyPressed(int key){
 		case ' ':
 			openCL.loadProgramFromFile("MSAOpenCL/ImageProcessing.cl");
 			openCL.loadKernel("msa_boxblur");
-			//openCL.loadKernel("msa_flipx");
-			//openCL.loadKernel("msa_flipy");
-			//openCL.loadKernel("msa_greyscale");
-			//openCL.loadKernel("msa_invert");
-			//openCL.loadKernel("msa_threshold");
+			openCL.loadKernel("msa_flipx");
+			openCL.loadKernel("msa_flipy");
+			openCL.loadKernel("msa_greyscale");
+			openCL.loadKernel("msa_invert");
+			openCL.loadKernel("msa_threshold");
 			break;
 	}
 
