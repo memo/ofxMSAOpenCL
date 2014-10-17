@@ -26,10 +26,10 @@ namespace msa {
 	class OpenCLBufferManagedT {
 	public:
 
-		//		OpenCLBufferManagedT();
-
-		// allocates
-		// parameters with default values can be omitted
+		/// allocates local storage, then allocates OpenCL storage
+		/// note: parameters with default values can be omitted
+		/// note: if dataPtr != NULL, buffer will be initialised 
+		/// by copying numberOfItems from dataPtr into buffer.
 		void initBuffer(int numberOfItems, void *dataPtr = NULL, cl_mem_flags memFlags = CL_MEM_READ_WRITE) {
 			initData(numberOfItems, dataPtr);
 			_clBuffer.initBuffer(sizeof(T) * size(), memFlags, &_data[0]);
@@ -52,9 +52,9 @@ namespace msa {
 
 		// write from main memory into device memory
 		// note: offset and count is in ITEM COUNT not bytes
-		void writeToDevice(int startOffsetItems = 0, int numberOfItems = 0, bool blockingWrite = CL_FALSE) {
+		void writeToDevice(int startOffsetItems = 0, int numberOfItems = 0, bool blockingWrite = CL_TRUE) {
 			if(numberOfItems == 0) numberOfItems = size();
-			_clBuffer.write(&_data[0], startOffsetItems * sizeof(T), numberOfItems * sizeof(T), blockingWrite);
+			_clBuffer.write(&_data[0], startOffsetItems * sizeof(T), numberOfItems * sizeof(T));
 		};
 
 		T& operator[](int i) { return _data[i]; }
@@ -66,9 +66,10 @@ namespace msa {
 
 
 
-	protected:
+	private:
 		vector<T> _data;
-		OpenCLBuffer _clBuffer;
+		//TODO: this needs to be an openCL mem object (which it is, by inheritance) !!!
+		OpenCLBuffer _clBuffer; 
 
 		void initData(int numberOfItems, void *dataPtr){
 			_data.resize(numberOfItems);
