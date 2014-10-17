@@ -34,8 +34,7 @@ namespace msa {
 	
 	protected:
 		OpenCLMemoryObject();
-		
-		
+
 		cl_mem		clMemObject;
 		OpenCL*		pOpenCL;
 		

@@ -87,7 +87,6 @@ namespace msa {
 		{
 			// TODO: we want to be more specific about the platform,
 			// at the moment only the first successful platform is selected. 
-			// so platform defaults to 0
 
 			cl_context_properties properties[] = 
 			{
@@ -146,7 +145,7 @@ namespace msa {
 
 	std::shared_ptr<OpenCLProgram>  OpenCL::loadProgramFromSource(string source) {
 		static int program_counter = 0;
-		/// todo: maybe hash source to get a more reliable identifier for program.
+		/// TODO: maybe md5hash source to get a more reliable identifier for program.
 		ofLog(OF_LOG_VERBOSE, "OpenCL::loadProgramFromSource");
 		std::shared_ptr<OpenCLProgram> p = std::shared_ptr<OpenCLProgram> (new OpenCLProgram());
 		p->loadFromSource(source);

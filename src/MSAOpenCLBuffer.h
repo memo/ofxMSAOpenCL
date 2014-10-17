@@ -30,14 +30,14 @@ namespace msa {
 		OpenCLBuffer();
 		
 		// if dataPtr parameter is passed in, data is uploaded immediately
-		// parameters with default values can be omited
+		// parameters with default values can be omitted
 		void initBuffer(	int numberOfBytes,
 						cl_mem_flags memFlags = CL_MEM_READ_WRITE,
 						void *dataPtr = NULL);
 		
 		
 		// create buffer from the GL Object - e.g. VBO (they share memory space on device)
-		// parameters with default values can be omited
+		// parameters with default values can be omitted
 		void initFromGLObject(	GLuint glBufferObject,
 							  cl_mem_flags memFlags = CL_MEM_READ_WRITE);
 		
@@ -56,7 +56,9 @@ namespace msa {
 				   int numberOfBytes
 				   );
 
-				// write from main memory (dataPtr), into device memory
+		/// write from main memory (dataPtr), into device memory
+		/// note: this will perform a non-blocking write and associate
+		/// writeEvent_  to this event as a side-effect.
 		void writeAsync(void *dataPtr,
 				   int startOffsetBytes,
 				   int numberOfBytes,
