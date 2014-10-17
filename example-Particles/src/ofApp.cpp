@@ -10,23 +10,10 @@
  *****/
 
 
-
-
 #include "ofApp.h"
 #include "MSAOpenCL.h"
 
-
-
-
-
-#define USE_OPENGL_CONTEXT
-
-
 #define NUM_PARTICLES (1000000)
-
-
-
-
 
 
 typedef struct{
@@ -34,8 +21,6 @@ typedef struct{
 	float mass;
 	float dummy;		// need this to make sure the float2 vel is aligned to a 16 byte boundary
 } Particle;
-
-
 
 
 float2				mousePos;
@@ -46,17 +31,12 @@ msa::OpenCL			opencl;
 
 std::shared_ptr<msa::OpenCLKernel>	kernelUpdate;
 
-
 msa::OpenCLBufferManagedT<Particle>	particles; // vector of Particles on host and corresponding clBuffer on device
-msa::OpenCLBuffer	clMemParticles;		// stores above data
-
 
 float2				particlesPos[NUM_PARTICLES];
-msa::OpenCLBufferManagedT<float2> particlePos; // vector of particle positions on host and corresponding clBuffer on device
+msa::OpenCLBufferManagedT<float2> particlePos; // vector of particle positions on host and corresponding clBuffer, and vbo on device
 
 GLuint				vbo;
-
-
 
 
 //--------------------------------------------------------------
@@ -85,21 +65,17 @@ void ofApp::setup(){
 		p.mass = ofRandom(0.5, 1);		
 		particlePos[i].set(ofRandomWidth(), ofRandomHeight());
 	}
-    
 	
     particles.writeToDevice();
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo[0]);
-	glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(float2) * NUM_PARTICLES, particlesPos, GL_DYNAMIC_COPY_ARB);
-    particlePos.writeToDevice();
-	
+    particlePos.writeToDevice(); ///< uploads buffer data to shared CL/GL memory, so the vbo and the cl buffer are written in one go, since they occupy the same memory locations.
 	
 	opencl.loadProgramFromFile("MSAOpenCL/Particle.cl");
 	opencl.loadKernel("updateParticle");
 
-	opencl.kernel("updateParticle")->setArg(0, particles.getCLMem());
-	opencl.kernel("updateParticle")->setArg(1, particlePos.getCLMem());
-	opencl.kernel("updateParticle")->setArg(2, mousePos);
-	opencl.kernel("updateParticle")->setArg(3, dimensions);
+	opencl.kernel("updateParticle")->setArg(0, particles);
+	opencl.kernel("updateParticle")->setArg(1, particlePos);
+	opencl.kernel("updateParticle")->setArg(2, mousePos.getPtr(), sizeof(float2));
+	opencl.kernel("updateParticle")->setArg(3, dimensions.getPtr(), sizeof(float2));
 	
 	glPointSize(1);
 }
@@ -109,22 +85,17 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-
 	
 	mousePos.x = ofGetMouseX();
 	mousePos.y = ofGetMouseY();
 	dimensions.x = ofGetWidth();
 	dimensions.y = ofGetHeight();
 	
-	opencl.kernel("updateParticle")->setArg(2, mousePos);
-	opencl.kernel("updateParticle")->setArg(3, dimensions);
+	opencl.kernel("updateParticle")->setArg(2, mousePos.getPtr(), sizeof(float2));
+	opencl.kernel("updateParticle")->setArg(3, dimensions.getPtr(), sizeof(float2) );
 	glFlush();
 	
-	//ofLog() << err;
 	opencl.kernel("updateParticle")->run1D(NUM_PARTICLES);
-	
-	//ofLog() << err;
-
 }
 
 
