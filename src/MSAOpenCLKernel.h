@@ -41,7 +41,7 @@ namespace msa {
 		bool setArg(int argNumber, void* argp_, size_t size_);
 
 		template<typename T>
-		bool setArg(int argNumber, OpenCLBufferManagedT<T> &buf){ return setArg(argNumber, &buf.getCLMem(),  sizeof(T)); };
+		bool setArg(int argNumber, OpenCLBufferManagedT<T> &buf){ return setArg(argNumber, buf.getCLBuffer()); };
 
 		// run the kernel
 		// globalSize and localSize should be int arrays with same number of dimensions as numDimensions
