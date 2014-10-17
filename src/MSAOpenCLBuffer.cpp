@@ -55,8 +55,7 @@ namespace msa {
 	
 	void OpenCLBuffer::write(void *dataPtr, int startOffsetBytes, int numberOfBytes) {
 		if (hasCorrespondingGLObject) lockGLObject();
-		cl_event writeOpEvent;
-		cl_int err = clEnqueueWriteBuffer(pOpenCL->getQueue(), clMemObject, CL_TRUE, startOffsetBytes, numberOfBytes, dataPtr, 0, NULL, &writeOpEvent);
+		cl_int err = clEnqueueWriteBuffer(pOpenCL->getQueue(), clMemObject, CL_TRUE, startOffsetBytes, numberOfBytes, dataPtr, 0, NULL, NULL);
 		if (hasCorrespondingGLObject) unlockGLObject();
 		assert(err == CL_SUCCESS);
 	}
