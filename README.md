@@ -12,6 +12,8 @@ The code in this repository is available under the [MIT License](https://secure.
 Copyright (c) 2008-2012 Memo Akten, [www.memo.tv](http://www.memo.tv)  
 The Mega Super Awesome Visuals Company
 
+Some Windows & OpenGL / interop specific additions (c) [tgfrerer](http://poniesandlight.co.uk), placed under MIT license. 
+
 
 Installation
 ------------
@@ -19,11 +21,12 @@ Copy to your openFrameworks/addons folder.
 
 I've had some problems on 10.8 with OpenCL. I've had to install these drivers [www.nvidia.com/object/cuda-mac-driver.html](http://www.nvidia.com/object/cuda-mac-driver.html) for my graphics card to work.
 
+## Windows / VS 2012 
+
+On Windows using Visual Studio, make sure to point your compiler to the right location of the OpenCL headers. You'll find an example ```.props``` property file in ```libs/OpenCL/lib/vs/``` - this file should work for the latest Windows CUDA/OpenCL Nvidia SDK. You can add it to your project by clicking "Add Existing Property Sheet" in the vs2012 Property Manager window. If it doesn't work, inspect it using a text editor and make sure the path to the OpenCL headers is correct for your development system.
 
 Dependencies
 ------------
-
-* [ofxMSAPingPing]{https://github.com/memo/ofxMSAPingPong}
 
 ### Windows / NVidia
 
@@ -35,7 +38,7 @@ Some examples also require [ofxMSATimer]{https://github.com/memo/ofxMSATimer}
 
 Compatibility
 ------------
-openFrameworks 0072  
+openFrameworks 0.8+  
 I am generally testing only with [openFrameworks](www.openframeworks.cc), however it should work with [Cinder](www.libcinder.org) too. If it doesn't, please file an issue.
 
 
@@ -45,6 +48,12 @@ none
 
 Version history
 ------------
+### v2.3
+- additions for safe OpenGL/OpenCL interop on windows and OS X
+- reliable detection of platforms and devices on windows, OS X
+- MSAOpenCLBufferManagedT to be compatible with GL interop elements (see particle example) 
+### v2.2
+- MSAOpenCLBufferManagedT: Memory Object High level wrapper, allocates and manages host and client memory objects
 ### v2.1    23/09/2012
 - compatible with OF0072
 - renamed (uppercase) MSA namespace to (lowercase) msa. (kept MSA as an alias for backwards compatibility)
