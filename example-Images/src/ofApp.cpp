@@ -37,7 +37,7 @@ void ofApp::setup(){
 	// load and compile OpenCL program
 	openCL.loadProgramFromFile("MSAOpenCL/ImageProcessing.cl");
 
-	mImgKittens.loadImage("kitten.png");
+	mImgKittens.loadImage("kitten.jpg");
 	
 	// load kernels
 	openCL.loadKernel("msa_boxblur");
