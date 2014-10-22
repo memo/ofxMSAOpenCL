@@ -71,6 +71,9 @@
     <ClInclude Include="..\..\..\addons\ofxMSAOpenCL\src\MSAOpenCLTypes.h">
       <Filter>addons\ofxMSAOpenCL\src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\MSAOpenCLBufferManagedT.h">
+      <Filter>addons\ofxMSAOpenCL\src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

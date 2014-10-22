@@ -102,6 +102,7 @@
     <ClCompile Include="..\..\..\addons\ofxMSAOpenCL\src\MSAOpenCLProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\MSAOpenCLBufferManagedT.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="..\..\..\addons\ofxMSAOpenCL\src\MSAOpenCL.h" />
     <ClInclude Include="..\..\..\addons\ofxMSAOpenCL\src\MSAOpenCLBuffer.h" />
