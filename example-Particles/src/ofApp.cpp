@@ -29,8 +29,6 @@ float2				dimensions;
 
 msa::OpenCL			opencl;
 
-std::shared_ptr<msa::OpenCLKernel>	kernelUpdate;
-
 msa::OpenCLBufferManagedT<Particle>	particles; // vector of Particles on host and corresponding clBuffer on device
 
 float2				particlesPos[NUM_PARTICLES];
