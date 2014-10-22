@@ -18,8 +18,10 @@ void ofApp::setup(){
 	// init grabber
 
 	// videoGrabber.initGrabber(640, 480);
-	vidWidth	= 640;
-	vidHeight	= 480;
+    mImgKittens.loadImage("kitten.jpg");
+    
+	vidWidth	= mImgKittens.getWidth();
+	vidHeight	= mImgKittens.getHeight();
 	
 
 	// allocate temp buffer
@@ -37,8 +39,6 @@ void ofApp::setup(){
 	// load and compile OpenCL program
 	openCL.loadProgramFromFile("MSAOpenCL/ImageProcessing.cl");
 
-	mImgKittens.loadImage("kitten.jpg");
-	
 	// load kernels
 	openCL.loadKernel("msa_boxblur");
 	openCL.loadKernel("msa_flipx");
