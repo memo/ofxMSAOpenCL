@@ -35,13 +35,18 @@ namespace msa {
 
 		// assign buffer to arguments
 		//	void setArg(int argNumber, cl_mem clMem);
-		bool setArg(int argNumber, float f);
-		bool setArg(int argNumber, int i);
-		bool setArg(int argNumber, OpenCLMemoryObject& buf);
+//		bool setArg(int argNumber, float f);
+//		bool setArg(int argNumber, int i);
+		bool setArg(int argNumber, OpenCLMemoryObject& memObject);
+        bool setArg(int argNumber, OpenCLBuffer& buf) { return setArg(argNumber, buf.getCLMem()); };
 		bool setArg(int argNumber, void* argp_, size_t size_);
 
-		template<typename T>
-		bool setArg(int argNumber, OpenCLBufferManagedT<T> &buf){ return setArg(argNumber, buf.getCLBuffer()); };
+        template<typename T>
+        bool setArg(int argNumber, OpenCLBufferManagedT<T> &managedBuf){ return setArg(argNumber, managedBuf.getCLMem()); };
+        
+        template<class T>
+        bool setArg(int argNumber, T &arg) { setArg(argNumber, &arg, sizeof(arg)); }
+        
 
 		// run the kernel
 		// globalSize and localSize should be int arrays with same number of dimensions as numDimensions

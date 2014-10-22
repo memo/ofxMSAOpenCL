@@ -241,19 +241,19 @@ namespace msa {
 
 	// assign buffer to arguments
 	//	void setArg(int argNumber, cl_mem clMem);
-	bool  OpenCLKernel::setArg(int argNumber, float f) {
-		return setArg(argNumber, &f, sizeof(float));
-	}
+//	bool  OpenCLKernel::setArg(int argNumber, float f) {
+//		return setArg(argNumber, &f, sizeof(float));
+//	}
+//
+//	// ----------------------------------------------------------------------
+//
+//	bool OpenCLKernel::setArg(int argNumber, int i){
+//		return setArg(argNumber, &i, sizeof(int));
+//	}
 
 	// ----------------------------------------------------------------------
 
-	bool OpenCLKernel::setArg(int argNumber, int i){
-		return setArg(argNumber, &i, sizeof(int));
-	}
-
-	// ----------------------------------------------------------------------
-
-	bool OpenCLKernel::setArg(int argNumber, msa::OpenCLMemoryObject& buf){
+	bool OpenCLKernel::setArg(int argNumber, msa::OpenCLMemoryObject& memObject){
 		// tig: if the buffer has a corresponding gl object, we need to flag it,
 		// so that it can be bound and then unbound upon run().
 		if ( !clKernel ) return false;
@@ -263,13 +263,13 @@ namespace msa {
 		// whenever openCL runs on it. 
 		// we'll do this automatically in run(), but we first have to register all objects 
 		// that have such dependencies.
-		if (buf.hasCorrespondingGLObject){
+		if (memObject.hasCorrespondingGLObject){
 			// make sure we haven't stored this object before.
-			if (find(mOpenGLInteropArguments.begin(),mOpenGLInteropArguments.end(), buf.clMemObject) == mOpenGLInteropArguments.end()){
-				mOpenGLInteropArguments.push_back(buf.clMemObject);
+			if (find(mOpenGLInteropArguments.begin(),mOpenGLInteropArguments.end(), memObject.clMemObject) == mOpenGLInteropArguments.end()){
+				mOpenGLInteropArguments.push_back(memObject.clMemObject);
 			}
 		}
-		bool result = setArg(argNumber, &buf.clMemObject,  sizeof(&buf.clMemObject));
+		bool result = setArg(argNumber, &memObject.clMemObject,  sizeof(&memObject.clMemObject));
 
 		return result;
 	}

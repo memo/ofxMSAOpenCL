@@ -72,8 +72,8 @@ void ofApp::setup(){
 
 	opencl.kernel("updateParticle")->setArg(0, particles);
 	opencl.kernel("updateParticle")->setArg(1, particlePos);
-	opencl.kernel("updateParticle")->setArg(2, mousePos.getPtr(), sizeof(float2));
-	opencl.kernel("updateParticle")->setArg(3, dimensions.getPtr(), sizeof(float2));
+    opencl.kernel("updateParticle")->setArg(2, mousePos);//.getPtr(), sizeof(float2));
+    opencl.kernel("updateParticle")->setArg(3, dimensions);//.getPtr(), sizeof(float2));
 	
 	glPointSize(1);
 }
@@ -89,8 +89,8 @@ void ofApp::update(){
 	dimensions.x = ofGetWidth();
 	dimensions.y = ofGetHeight();
 	
-	opencl.kernel("updateParticle")->setArg(2, mousePos.getPtr(), sizeof(float2));
-	opencl.kernel("updateParticle")->setArg(3, dimensions.getPtr(), sizeof(float2) );
+    opencl.kernel("updateParticle")->setArg(2, mousePos);//.getPtr(), sizeof(float2));
+    opencl.kernel("updateParticle")->setArg(3, dimensions);//.getPtr(), sizeof(float2) );
 	glFlush();
 	
 	opencl.kernel("updateParticle")->run1D(NUM_PARTICLES);
