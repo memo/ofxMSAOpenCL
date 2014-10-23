@@ -7,11 +7,10 @@
 	#include <CL/opencl.h>
 #endif
 
+#include "MSAOpenCLTypes.h"
 
 namespace msa { 
-	
-	class OpenCL;
-	class OpenCLKernel;
+
 	
 	class OpenCLProgram {
 	public:
@@ -21,7 +20,7 @@ namespace msa {
 		void loadFromFile(string filename, bool isBinary = false);
 		void loadFromSource(string source);
 		
-		std::shared_ptr<OpenCLKernel> loadKernel(string kernelName);
+		OpenCLKernelPtr loadKernel(string kernelName);
 		
 		void getBinary();
 		

@@ -4,6 +4,8 @@
 #include <OpenGL/OpenGL.h>
 #endif
 
+#include "MSAOpenCLProgram.h"
+
 namespace msa {
 
 	OpenCL *OpenCL::currentOpenCL = NULL;
@@ -134,29 +136,29 @@ namespace msa {
 
 
 
-	std::shared_ptr<OpenCLProgram>  OpenCL::loadProgramFromFile(string filename, bool isBinary) {
+	OpenCLProgramPtr  OpenCL::loadProgramFromFile(string filename, bool isBinary) {
 		ofLog(OF_LOG_VERBOSE, "OpenCL::loadProgramFromFile");
-		std::shared_ptr<OpenCLProgram> p = std::shared_ptr<OpenCLProgram> (new OpenCLProgram());
+		OpenCLProgramPtr p = OpenCLProgramPtr (new OpenCLProgram());
 		p->loadFromFile(filename, isBinary);
 		programs[filename] = p;
 		return p;
 	}
 
 
-	std::shared_ptr<OpenCLProgram>  OpenCL::loadProgramFromSource(string source) {
+	OpenCLProgramPtr  OpenCL::loadProgramFromSource(string source) {
 		static int program_counter = 0;
 		/// TODO: maybe md5hash source to get a more reliable identifier for program.
 		ofLog(OF_LOG_VERBOSE, "OpenCL::loadProgramFromSource");
-		std::shared_ptr<OpenCLProgram> p = std::shared_ptr<OpenCLProgram> (new OpenCLProgram());
+		OpenCLProgramPtr p = OpenCLProgramPtr (new OpenCLProgram());
 		p->loadFromSource(source);
 		programs["#from_source_" + ofToString(program_counter++)] = p;
 		return p;
 	} 
 
-	std::shared_ptr<OpenCLKernel> OpenCL::loadKernel(string kernelName, std::shared_ptr<OpenCLProgram> program) {
+	OpenCLKernelPtr OpenCL::loadKernel(string kernelName, OpenCLProgramPtr program) {
 		ofLog(OF_LOG_VERBOSE, "OpenCL::loadKernel " + kernelName + ", " + ofToString((int)program.get()));
 		if(program.get() == NULL) program = (programs.begin()->second);
-		std::shared_ptr<OpenCLKernel> k = program->loadKernel(kernelName);
+		OpenCLKernelPtr k = program->loadKernel(kernelName);
 		kernels[kernelName] = k;
 		return k;
 	}
@@ -207,13 +209,13 @@ namespace msa {
 
 
 
-	std::shared_ptr<OpenCLKernel> OpenCL::kernel(string kernelName) {
+	OpenCLKernelPtr OpenCL::kernel(string kernelName) {
 		// todo: check if kernel could be found.
 		if (kernels.find(kernelName) != kernels.end()) {
 			return kernels[kernelName];
 		} else {
 			ofLogError() << "Could not find kernel with name: " << kernelName;
-			return std::shared_ptr<OpenCLKernel>();	// return empty shared ptr.
+			return OpenCLKernelPtr();	// return empty shared ptr.
 		}
 	}
 

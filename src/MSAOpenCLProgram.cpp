@@ -62,13 +62,13 @@ namespace msa {
 	} 
 	
 	
-	std::shared_ptr<OpenCLKernel> OpenCLProgram::loadKernel(string kernelName) {
+	OpenCLKernelPtr OpenCLProgram::loadKernel(string kernelName) {
 		ofLog(OF_LOG_VERBOSE, "OpenCLProgram::loadKernel " + kernelName);
 		assert(clProgram);
 		
 		cl_int err;
 		
-		std::shared_ptr<OpenCLKernel>k = std::shared_ptr<OpenCLKernel>(new OpenCLKernel(pOpenCL, clCreateKernel(clProgram, kernelName.c_str(), &err), kernelName));
+		OpenCLKernelPtr k = OpenCLKernelPtr(new OpenCLKernel(pOpenCL, clCreateKernel(clProgram, kernelName.c_str(), &err), kernelName));
 		
 		if(err != CL_SUCCESS) {
 			ofLog(OF_LOG_ERROR, string("Error creating kernel: ") + kernelName);

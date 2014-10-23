@@ -58,13 +58,13 @@ namespace msa {
 		
 		// load a program (contains a bunch of kernels)
 		// returns pointer to the program should you need it (for most operations you won't need this)
-		std::shared_ptr<OpenCLProgram> 	loadProgramFromFile(string filename, bool isBinary = false);
-		std::shared_ptr<OpenCLProgram> 	loadProgramFromSource(string programSource);
+		OpenCLProgramPtr 	loadProgramFromFile(string filename, bool isBinary = false);
+		OpenCLProgramPtr 	loadProgramFromSource(string programSource);
 		
 		// specify a kernel to load from the specified program
 		// if you leave the program parameter blank it will use the last loaded program
 		// returns pointer to the kernel should you need it (for most operations you won't need this)
-		std::shared_ptr<OpenCLKernel>	loadKernel(string kernelName, std::shared_ptr<OpenCLProgram> program = std::shared_ptr<OpenCLProgram>());
+		OpenCLKernelPtr	loadKernel(string kernelName, OpenCLProgramPtr program = OpenCLProgramPtr());
 		
 		
 		
@@ -125,10 +125,10 @@ namespace msa {
 		
 		
 		// retrieve kernel so you can run it or setup params etc.
-		std::shared_ptr<OpenCLKernel>	kernel(string kernelName);
+		OpenCLKernelPtr	kernel(string kernelName);
 		
 		
-		const map<string, std::shared_ptr<OpenCLProgram> >&	getPrograms() {
+		const map<string, OpenCLProgramPtr>&	getPrograms() {
 			return programs;
 		}
 		
@@ -137,7 +137,7 @@ namespace msa {
 			programs.clear();
 		}
 		
-		map<string, std::shared_ptr<OpenCLKernel> >	getKernels() {
+		map<string, OpenCLKernelPtr>	getKernels() {
 			return kernels;
 		}
 		
@@ -188,8 +188,8 @@ namespace msa {
 		cl_context						clContext;
 		cl_command_queue				clQueue;
 		
-		map<string, std::shared_ptr<OpenCLProgram> > programs;
-		map<string, std::shared_ptr<OpenCLKernel> >	 kernels;
+		map<string, OpenCLProgramPtr> programs;
+		map<string, OpenCLKernelPtr>	 kernels;
 		vector<OpenCLMemoryObject*>					 memObjects;
 		bool										 isSetup;
 		

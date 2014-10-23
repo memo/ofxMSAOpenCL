@@ -2,27 +2,37 @@
 
 #include "ofMain.h"
 
-typedef ofVec2f float2;
-typedef ofVec3f float3;
-typedef ofVec4f float4;
-
+    typedef ofVec2f float2;
+    typedef ofVec3f float3;
+    typedef ofVec4f float4;
+    
+namespace msa {
+    
+    class OpenCL;
+    
+    class OpenCLKernel;
+    typedef shared_ptr<OpenCLKernel> OpenCLKernelPtr;
+    
+    class OpenCLProgram;
+    typedef shared_ptr<OpenCLProgram> OpenCLProgramPtr;
+}
 //
 //class float2 {
 //public:
-//	
+//
 //	float x, y;
-//	
+//
 //    float2( float _x=0.0f, float _y=0.0f );
 //    float2( const float2& pnt );
-//	
-//	
+//
+//
 //    // Getters and Setters.
 //    //
 //    void set( float _x, float _y );
 //    void set( const float2& vec );
 //    float &operator[]( const int& i );
-//	
-//	
+//
+//
 //    // Check similarity/equality.
 //    //
 //    bool operator==( const float2& vec );
@@ -34,8 +44,8 @@ typedef ofVec4f float4;
 //	 */
 //    bool align( const float2& vec, float tollerance=0.0001 ) const;
 //    bool alignRad( const float2& vec, float tollerance=0.0001 ) const;
-//	
-//	
+//
+//
 //    // Overloading for any type to any type
 //    //
 //    void 	  operator=( const float2& vec );
@@ -47,8 +57,8 @@ typedef ofVec4f float4;
 //    float2& operator*=( const float2& vec );
 //    float2  operator/( const float2& vec ) const;
 //    float2& operator/=( const float2& vec );
-//	
-//	
+//
+//
 //    //operator overloading for float
 //    //
 //    void 	  operator=( const float f);
@@ -61,30 +71,30 @@ typedef ofVec4f float4;
 //    float2& operator*=( const float f );
 //    float2  operator/( const float f ) const;
 //    float2& operator/=( const float f );
-//	
-//	
+//
+//
 //    // Scaling
 //    //
 //    float2  getScaled( const float length ) const;
 //    float2& scale( const float length );
-//	
-//	
+//
+//
 //    // Rotation
 //    //
 //    float2  getRotated( float angle ) const;
 //    float2  getRotatedRad( float angle ) const;
 //    float2& rotate( float angle );
 //    float2& rotateRad( float angle );
-//	
-//    
+//
+//
 //    // Rotation - point around pivot
 //    //
 //    float2  getRotated( float angle, const float2& pivot ) const;
 //    float2& rotate( float angle, const float2& pivot );
 //    float2  getRotatedRad( float angle, const float2& pivot ) const;
 //    float2& rotateRad( float angle, const float2& pivot );
-//	
-//	
+//
+//
 //    // Map point to coordinate system defined by origin, vx, and vy.
 //    //
 //    float2 getMapped( const float2& origin,
@@ -92,14 +102,14 @@ typedef ofVec4f float4;
 //					   const float2& vy ) const;
 //    float2& map( const float2& origin,
 //				  const float2& vx, const float2& vy );
-//	
-//	
+//
+//
 //    // Distance between two points.
 //    //
 //    float distance( const float2& pnt) const;
 //    float squareDistance( const float2& pnt ) const;
-//	
-//	
+//
+//
 //    // Linear interpolation.
 //    //
 //    //
@@ -112,85 +122,85 @@ typedef ofVec4f float4;
 //    float2   getMiddle( const float2& pnt ) const;
 //    float2&  middle( const float2& pnt );
 //    float2&  average( const float2* points, int num );
-//    
-//    
+//
+//
 //    // Normalization
 //    //
 //    float2  getNormalized() const;
 //    float2& normalize();
-//	
-//	
+//
+//
 //    // Limit length.
 //    //
 //	float2  getLimited(float max) const;
 //    float2& limit(float max);
-//	
-//	
+//
+//
 //    // Perpendicular normalized vector.
 //    //
 //    float2  getPerpendicular() const;
 //    float2& perpendicular();
-//	
-//	
+//
+//
 //    // Length
 //    //
 //    float length() const;
 //    float squareLength() const;
-//	
-//	
+//
+//
 //    /**
 //	 * Angle (deg) between two vectors.
 //	 * This is a signed relative angle between -180 and 180.
 //	 */
 //    float angle( const float2& vec ) const;
 //    float angleRad( const float2& vec ) const;
-//	
-//	
+//
+//
 //    /**
 //	 * Dot Product.
 //	 */
 //    float dot( const float2& vec ) const;
-//	
-//	
-//	
+//
+//
+//
 //    //---------------------------------------------------
 //    // this methods are deprecated in 006 please use:
-//	
+//
 //    // getScaled
 //    float2 rescaled( const float length ) const;
-//	
+//
 //    // scale
 //    float2& rescale( const float length );
-//	
+//
 //    // getRotated
 //    float2 rotated( float angle ) const;
-//	
+//
 //    // getNormalized
 //    float2 normalized() const;
-//	
+//
 //    // getLimited
 //    float2 limited(float max) const;
-//	
+//
 //    // getPerpendicular
 //    float2 perpendiculared() const;
-//	
+//
 //    // squareLength
 //    float lengthSquared() const;
-//	
+//
 //    // getInterpolated
 //    float2 interpolated( const float2& pnt, float p ) const;
-//    
+//
 //    // getMiddled
 //    float2 middled( const float2& pnt ) const;
-//    
-//    // getMapped 
+//
+//    // getMapped
 //    float2 mapped( const float2& origin, const float2& vx, const float2& vy ) const;
-//    
+//
 //    // squareDistance
 //    float distanceSquared( const float2& pnt ) const;
-//    
+//
 //    // use getRotated
-//    float2 rotated( float angle, const float2& pivot ) const;    
+//    float2 rotated( float angle, const float2& pivot ) const;
 //};
 //
 //
@@ -372,13 +382,13 @@ typedef ofVec4f float4;
 //
 //inline float2 float2::operator/( const float f ) const {
 //	if(f == 0) return float2(x, y);
-//	
+//
 //	return float2(x/f, y/f);
 //}
 //
 //inline float2& float2::operator/=( const float f ) {
 //	if(f == 0) return *this;
-//	
+//
 //	x/=f;
 //	y/=f;
 //	return *this;
@@ -755,46 +765,46 @@ typedef ofVec4f float4;
 //
 //	float4() {
 //	}
-//	
+//
 //	float4( float _x, float _y, float _z, float _w = 0.0f) {
 //        x = _x;
 //        y = _y;
 //        z = _z;
 //		w = _w;
 //    }
-//	
+//
 //    float4( const float4 & pnt){
 //        x = pnt.x;
 //        y = pnt.y;
 //        z = pnt.z;
 //		w = pnt.w;
 //    }
-//	
+//
 //    void set(float _x, float _y, float _z, float _w = 0.0f){
 //        x = _x;
 //        y = _y;
 //        z = _z;
 //		w = _w;
 //    }
-//	
-//	
+//
+//
 //	//------ Operators:
-//	
+//
 //  	//Negative
 //    float4 operator-() const {
 //        return float4( -x, -y, -z, -w );
 //    }
-//	
+//
 //    //equality
 //    bool operator==( const float4& pnt ) {
 //        return (x == pnt.x) && (y == pnt.y) && (z == pnt.z) && (z == pnt.w);
 //    }
-//	
+//
 //	//inequality
 //    bool operator!=( const float4& pnt ) {
 //        return (x != pnt.x) || (y != pnt.y) || (z != pnt.z) || (w != pnt.w);
 //    }
-//	
+//
 //	//Set
 //	float4 & operator=( const float4& pnt ){
 //		x = pnt.x;
@@ -803,7 +813,7 @@ typedef ofVec4f float4;
 //		w = pnt.w;
 //		return *this;
 //	}
-//	
+//
 //	float4 & operator=( const float& val ){
 //		x = val;
 //		y = val;
@@ -811,16 +821,16 @@ typedef ofVec4f float4;
 //		w = val;
 //		return *this;
 //	}
-//	
+//
 //	// Add
 //    float4 operator+( const float4& pnt ) const {
 //        return float4( x+pnt.x, y+pnt.y, z+pnt.z, w+pnt.w );
 //    }
-//	
+//
 //    float4 operator+( const float& val ) const {
 //        return float4( x+val, y+val, z+val, w+val );
 //    }
-//	
+//
 //	float4 & operator+=( const float4& pnt ) {
 //        x+=pnt.x;
 //        y+=pnt.y;
@@ -828,7 +838,7 @@ typedef ofVec4f float4;
 //		w+=pnt.w;
 //        return *this;
 //    }
-//	
+//
 //	float4 & operator+=( const float & val ) {
 //        x+=val;
 //        y+=val;
@@ -836,16 +846,16 @@ typedef ofVec4f float4;
 //		z+=val;
 //        return *this;
 //    }
-//	
+//
 //	// Subtract
 //    float4 operator-(const float4& pnt) const {
 //        return float4( x-pnt.x, y-pnt.y, z-pnt.z, w-pnt.w );
 //    }
-//	
+//
 //    float4 operator-(const float& val) const {
 //        return float4( x-val, y-val, z-val, w-val);
 //    }
-//	
+//
 //    float4 & operator-=( const float4& pnt ) {
 //        x -= pnt.x;
 //        y -= pnt.y;
@@ -853,7 +863,7 @@ typedef ofVec4f float4;
 //		w -= pnt.w;
 //        return *this;
 //    }
-//	
+//
 //    float4 & operator-=( const float & val ) {
 //        x -= val;
 //        y -= val;
@@ -861,16 +871,16 @@ typedef ofVec4f float4;
 //		w -= val;
 //        return *this;
 //    }
-//	
+//
 //	// Multiply
 //    float4 operator*( const float4& pnt ) const {
 //        return float4( x*pnt.x, y*pnt.y, z*pnt.z, w*pnt.w );
 //    }
-//	
+//
 //    float4 operator*(const float& val) const {
 //        return float4( x*val, y*val, z*val, w*val);
 //    }
-//	
+//
 //    float4 & operator*=( const float4& pnt ) {
 //        x*=pnt.x;
 //        y*=pnt.y;
@@ -878,7 +888,7 @@ typedef ofVec4f float4;
 //		w*=pnt.w;
 //        return *this;
 //    }
-//	
+//
 //    float4 & operator*=( const float & val ) {
 //        x*=val;
 //        y*=val;
@@ -886,29 +896,29 @@ typedef ofVec4f float4;
 //		w*=val;
 //        return *this;
 //    }
-//	
-//	
+//
+//
 //	// Divide
 //    float4 operator/( const float4& pnt ) const {
 //        return float4( pnt.x!=0 ? x/pnt.x : x , pnt.y!=0 ? y/pnt.y : y, pnt.z!=0 ? z/pnt.z : z, pnt.w!=0 ? w/pnt.w : w );
 //    }
-//	
+//
 //    float4 operator/( const float &val ) const {
 //		if( val != 0){
 //			return float4( x/val, y/val, z/val, w/val );
 //		}
 //        return float4(x, y, z, w );
 //    }
-//	
+//
 //    float4& operator/=( const float4& pnt ) {
 //        pnt.x!=0 ? x/=pnt.x : x;
 //        pnt.y!=0 ? y/=pnt.y : y;
 //        pnt.z!=0 ? z/=pnt.z : z;
 //        pnt.w!=0 ? w/=pnt.w : w;
-//		
+//
 //        return *this;
 //    }
-//	
+//
 //    float4& operator/=( const float &val ) {
 //		if( val != 0 ){
 //			x /= val;
@@ -916,7 +926,7 @@ typedef ofVec4f float4;
 //			z /= val;
 //			w /= val;
 //		}
-//		
+//
 //		return *this;
 //    }
 //};
