@@ -45,7 +45,7 @@ namespace msa {
         bool setArg(int argNumber, OpenCLBufferManagedT<T> &managedBuf){ return setArg(argNumber, managedBuf.getCLMem()); };
         
         template<class T>
-        bool setArg(int argNumber, T &arg) { setArg(argNumber, &arg, sizeof(arg)); }
+        bool setArg(int argNumber, T &arg) { return setArg(argNumber, &arg, sizeof(arg)); }
         
 
 		// run the kernel
