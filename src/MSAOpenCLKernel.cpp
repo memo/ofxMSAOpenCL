@@ -93,7 +93,7 @@ namespace msa {
 
 		const int index = -error;
 
-		return (index >= 0 && index < errorCount) ? errorString[index] : "Unspecified Error";
+		return (index >= 0 && index < errorCount) ? errorString[index] : "Unspecified Error: " + ofToString(error);
 	}
 
 	// ----------------------------------------------------------------------
