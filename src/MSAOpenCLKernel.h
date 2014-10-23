@@ -34,18 +34,21 @@ namespace msa {
 
 
 		// assign buffer to arguments
-		//	void setArg(int argNumber, cl_mem clMem);
-//		bool setArg(int argNumber, float f);
-//		bool setArg(int argNumber, int i);
-		bool setArg(int argNumber, OpenCLMemoryObject& memObject);
-        bool setArg(int argNumber, OpenCLBuffer& buf) { return setArg(argNumber, buf.getCLMem()); };
 		bool setArg(int argNumber, void* argp_, size_t size_);
+		bool setArg(int argNumber, float v) { return setArg(argNumber, &v, sizeof(v)); }
+		bool setArg(int argNumber, int v) { return setArg(argNumber, &v, sizeof(v)); }
+		bool setArg(int argNumber, ofVec2f v) { return setArg(argNumber, &v, sizeof(v)); }
+		bool setArg(int argNumber, ofVec3f v) { return setArg(argNumber, &v, sizeof(v)); }
+		bool setArg(int argNumber, ofVec4f v) { return setArg(argNumber, &v, sizeof(v)); }
+		bool setArg(int argNumber, cl_mem v) { return setArg(argNumber, &v, sizeof(v)); }
+		bool setArg(int argNumber, OpenCLMemoryObject& memObject);
 
-        template<typename T>
-        bool setArg(int argNumber, OpenCLBufferManagedT<T> &managedBuf){ return setArg(argNumber, managedBuf.getCLMem()); };
+		template<typename T>
+		bool setArg(int argNumber, OpenCLBufferManagedT<T> &managedBuf){ return setArg(argNumber, managedBuf.getCLBuffer()); };
         
-        template<class T>
-        bool setArg(int argNumber, T &arg) { return setArg(argNumber, &arg, sizeof(arg)); }
+		// doesn't work on windows. templates get confused :(
+        // template<class T>
+        // bool setArg(int argNumber, T &arg) { return setArg(argNumber, &arg, sizeof(arg)); }
         
 
 		// run the kernel
