@@ -129,7 +129,7 @@ namespace msa {
 	void OpenCLImage::reset() {
 		ofLog(OF_LOG_VERBOSE, "OpenCLImage::reset()");
 		int numElements = width * height * 4; // TODO, make real
-		if(texture->getTextureData().glTypeInternal == GL_FLOAT) numElements *= sizeof(cl_float);
+		if(ofGetGlTypeFromInternal(texture->getTextureData().glInternalFormat == GL_FLOAT)) numElements *= sizeof(cl_float);
 		char *data = new char[numElements];
 		memset(data, 0, numElements);
 		write(data, true);
