@@ -17,8 +17,8 @@ namespace msa {
 		OpenCLProgram();
 		~OpenCLProgram();
 		
-		void loadFromFile(string filename, bool isBinary = false);
-		void loadFromSource(string source);
+		void loadFromFile(string filename, string options = "", bool isBinary = false);
+		void loadFromSource(string source, string options = "");
 		
 		OpenCLKernelPtr loadKernel(string kernelName);
 		
@@ -30,7 +30,7 @@ namespace msa {
 		OpenCL*		pOpenCL;
 		cl_program		clProgram;
 		
-		void			build();
+		void			build(string options);
 		
 	};
 	

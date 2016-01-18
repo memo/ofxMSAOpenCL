@@ -58,8 +58,8 @@ namespace msa {
 		
 		// load a program (contains a bunch of kernels)
 		// returns pointer to the program should you need it (for most operations you won't need this)
-		OpenCLProgramPtr 	loadProgramFromFile(string filename, bool isBinary = false);
-		OpenCLProgramPtr 	loadProgramFromSource(string programSource);
+		OpenCLProgramPtr 	loadProgramFromFile(string filename, string options = "", bool isBinary = false);
+		OpenCLProgramPtr 	loadProgramFromSource(string programSource, string options = "");
 		
 		// specify a kernel to load from the specified program
 		// if you leave the program parameter blank it will use the last loaded program
