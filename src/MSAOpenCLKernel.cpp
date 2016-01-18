@@ -4,7 +4,7 @@
 namespace msa { 
 
 	OpenCLKernel::OpenCLKernel(OpenCL* pOpenCL, cl_kernel clKernel, string name) {
-		ofLog(OF_LOG_VERBOSE, "OpenCLKernel::OpenCLKernel " + ofToString((int)pOpenCL) + ", " + name);
+		ofLog(OF_LOG_VERBOSE, "OpenCLKernel::OpenCLKernel " + ofToString(pOpenCL) + ", " + name);
 		this->pOpenCL	= pOpenCL;
 		this->name		= name;
 		this->clKernel	= clKernel;

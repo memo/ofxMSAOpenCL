@@ -156,7 +156,7 @@ namespace msa {
 	} 
 
 	OpenCLKernelPtr OpenCL::loadKernel(string kernelName, OpenCLProgramPtr program) {
-		ofLog(OF_LOG_VERBOSE, "OpenCL::loadKernel " + kernelName + ", " + ofToString((int)program.get()));
+		ofLog(OF_LOG_VERBOSE, "OpenCL::loadKernel " + kernelName + ", " + ofToString(program.get()));
 		if(program.get() == NULL) program = (programs.begin()->second);
 		OpenCLKernelPtr k = program->loadKernel(kernelName);
 		kernels[kernelName] = k;
