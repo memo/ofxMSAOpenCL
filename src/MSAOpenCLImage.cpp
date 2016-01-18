@@ -33,9 +33,9 @@ namespace msa {
 		if(clMemObject) clReleaseMemObject(clMemObject);
 		
 		if(depth == 1) {
-			clMemObject = clCreateImage2D(pOpenCL->getContext(), memFlags, &imageFormat, width, height, image_row_pitch, memFlags & CL_MEM_USE_HOST_PTR ? dataPtr : NULL, &err);
+			clMemObject = clCreateImage2D(pOpenCL->getContext(), memFlags, &imageFormat, width, height, image_row_pitch, (memFlags & (CL_MEM_USE_HOST_PTR | CL_MEM_COPY_HOST_PTR)) ? dataPtr : NULL, &err);
 		} else {
-			clMemObject = clCreateImage3D(pOpenCL->getContext(), memFlags, &imageFormat, width, height, depth, image_row_pitch, image_slice_pitch, memFlags & CL_MEM_USE_HOST_PTR ? dataPtr : NULL, &err);
+			clMemObject = clCreateImage3D(pOpenCL->getContext(), memFlags, &imageFormat, width, height, depth, image_row_pitch, image_slice_pitch, (memFlags & (CL_MEM_USE_HOST_PTR | CL_MEM_COPY_HOST_PTR)) ? dataPtr : NULL, &err);
 		}
 		assert(err != CL_INVALID_CONTEXT);
 		assert(err != CL_INVALID_VALUE);
