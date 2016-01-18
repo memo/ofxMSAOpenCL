@@ -136,10 +136,10 @@ namespace msa {
 
 
 
-	OpenCLProgramPtr  OpenCL::loadProgramFromFile(string filename, string options, bool isBinary) {
+	OpenCLProgramPtr  OpenCL::loadProgramFromFile(string filename, bool isBinary, string options) {
 		ofLog(OF_LOG_VERBOSE, "OpenCL::loadProgramFromFile");
 		OpenCLProgramPtr p = OpenCLProgramPtr (new OpenCLProgram());
-		p->loadFromFile(filename, options, isBinary);
+		p->loadFromFile(filename, isBinary, options);
 		programs[filename] = p;
 		return p;
 	}

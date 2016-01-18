@@ -21,7 +21,7 @@ namespace msa {
 	}
 	
 	
-	void OpenCLProgram::loadFromFile(std::string filename, string options, bool isBinary) {
+	void OpenCLProgram::loadFromFile(std::string filename, bool isBinary, string options) {
 		ofLog(OF_LOG_VERBOSE, "OpenCLProgram::loadFromFile " + filename + ", isBinary: " + ofToString(isBinary));
 		
 		string fullPath = ofToDataPath(filename.c_str());
