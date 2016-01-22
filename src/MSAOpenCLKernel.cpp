@@ -4,7 +4,7 @@
 namespace msa { 
 
 	OpenCLKernel::OpenCLKernel(OpenCL* pOpenCL, cl_kernel clKernel, string name) {
-		ofLog(OF_LOG_VERBOSE, "OpenCLKernel::OpenCLKernel " + ofToString((int)pOpenCL) + ", " + name);
+		ofLog(OF_LOG_VERBOSE, "OpenCLKernel::OpenCLKernel " + ofToString(pOpenCL) + ", " + name);
 		this->pOpenCL	= pOpenCL;
 		this->name		= name;
 		this->clKernel	= clKernel;
@@ -197,16 +197,20 @@ namespace msa {
 //			return;
 //		}
 		size_t globalSizes[3];
-		globalSizes[0] = roundToNextMultipleOf(globalSizeX,localSizeX);	// make sure global sizes are a multiple of local size
-		globalSizes[1] = roundToNextMultipleOf(globalSizeY,localSizeY);
-		globalSizes[2] = roundToNextMultipleOf(globalSizeZ,localSizeZ);
 		if(localSizeZ && localSizeY && localSizeX) {
+            globalSizes[0] = roundToNextMultipleOf(globalSizeX,localSizeX);	// make sure global sizes are a multiple of local size
+            globalSizes[1] = roundToNextMultipleOf(globalSizeY,localSizeY);
+            globalSizes[2] = roundToNextMultipleOf(globalSizeZ,localSizeZ);
 			size_t localSizes[3];
 			localSizes[0] = localSizeX;
 			localSizes[1] = localSizeY;
 			localSizes[2] = localSizeZ;
 			run(3, globalSizes, localSizes);
 		} else {
+            // no local size specified - let driver figure out how to break up workload.
+            globalSizes[0] = globalSizeX;
+            globalSizes[1] = globalSizeY;
+            globalSizes[2] = globalSizeZ;
 			run(3, globalSizes, NULL);
 		}
 	}

@@ -136,27 +136,27 @@ namespace msa {
 
 
 
-	OpenCLProgramPtr  OpenCL::loadProgramFromFile(string filename, bool isBinary) {
+	OpenCLProgramPtr  OpenCL::loadProgramFromFile(string filename, bool isBinary, string options) {
 		ofLog(OF_LOG_VERBOSE, "OpenCL::loadProgramFromFile");
 		OpenCLProgramPtr p = OpenCLProgramPtr (new OpenCLProgram());
-		p->loadFromFile(filename, isBinary);
+		p->loadFromFile(filename, isBinary, options);
 		programs[filename] = p;
 		return p;
 	}
 
 
-	OpenCLProgramPtr  OpenCL::loadProgramFromSource(string source) {
+	OpenCLProgramPtr  OpenCL::loadProgramFromSource(string source, string options) {
 		static int program_counter = 0;
 		/// TODO: maybe md5hash source to get a more reliable identifier for program.
 		ofLog(OF_LOG_VERBOSE, "OpenCL::loadProgramFromSource");
 		OpenCLProgramPtr p = OpenCLProgramPtr (new OpenCLProgram());
-		p->loadFromSource(source);
+		p->loadFromSource(source, options);
 		programs["#from_source_" + ofToString(program_counter++)] = p;
 		return p;
 	} 
 
 	OpenCLKernelPtr OpenCL::loadKernel(string kernelName, OpenCLProgramPtr program) {
-		ofLog(OF_LOG_VERBOSE, "OpenCL::loadKernel " + kernelName + ", " + ofToString((int)program.get()));
+		ofLog(OF_LOG_VERBOSE, "OpenCL::loadKernel " + kernelName + ", " + ofToString(program.get()));
 		if(program.get() == NULL) program = (programs.begin()->second);
 		OpenCLKernelPtr k = program->loadKernel(kernelName);
 		kernels[kernelName] = k;

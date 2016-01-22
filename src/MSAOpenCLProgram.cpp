@@ -21,7 +21,7 @@ namespace msa {
 	}
 	
 	
-	void OpenCLProgram::loadFromFile(std::string filename, bool isBinary) { 
+	void OpenCLProgram::loadFromFile(std::string filename, bool isBinary, string options) {
 		ofLog(OF_LOG_VERBOSE, "OpenCLProgram::loadFromFile " + filename + ", isBinary: " + ofToString(isBinary));
 		
 		string fullPath = ofToDataPath(filename.c_str());
@@ -38,7 +38,7 @@ namespace msa {
 				ofLog(OF_LOG_ERROR, "Error loading program file: " + fullPath);
 			}
 			
-			loadFromSource(source);
+			loadFromSource(source, options);
 			
 			free(source);
 		}
@@ -46,7 +46,7 @@ namespace msa {
 	
 	
 	
-	void OpenCLProgram::loadFromSource(std::string source) {
+	void OpenCLProgram::loadFromSource(std::string source, string options) {
 		ofLog(OF_LOG_VERBOSE, "OpenCLProgram::loadFromSource ");// + source);
 		
 		cl_int err;
@@ -58,7 +58,7 @@ namespace msa {
 		
 
 
-		build();
+		build(options);
 	} 
 	
 	
@@ -117,14 +117,15 @@ namespace msa {
 	}
 	
 	
-	void OpenCLProgram::build() {
+	void OpenCLProgram::build(string options) {
 		if(clProgram == NULL) {
 			ofLog(OF_LOG_ERROR, "Error creating program object.");
 			assert(false); 
 		}	
 		
 		string Options;
-		Options += "-I \"" + ofToDataPath("") + "\" ";
+		Options += "-I \"" + ofToDataPath("") + "\" " + options;
+        ofLog(OF_LOG_VERBOSE, "OpenCLProgram::build options: " + Options);
 		cl_int err = clBuildProgram(clProgram, 0, NULL, Options.c_str(), NULL, NULL);
 		if(err != CL_SUCCESS) {
 			ofLog(OF_LOG_ERROR, "\n\n ***** Error building program. ***** \n ***********************************\n\n");
@@ -136,7 +137,7 @@ namespace msa {
 			buffer[len] = '\0';
 			
 			const char* bufferString = &buffer[0];
-			ofLog(OF_LOG_ERROR, bufferString );
+			ofLog(OF_LOG_ERROR, string(bufferString));
 //			assert(false);
 		}
 	}
