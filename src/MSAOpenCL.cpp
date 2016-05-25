@@ -76,7 +76,7 @@ namespace msa {
 		clDevice = deviceInfo[deviceNumber].clDeviceId;
 		cl_platform_id clPlatformID = deviceInfo[deviceNumber].clPlatformId;
 
-		cl_int err;
+        cl_int err;
 
 #ifdef TARGET_OSX	
 		CGLContextObj kCGLContext = CGLGetCurrentContext();
@@ -103,8 +103,26 @@ namespace msa {
 			clContext = clCreateContext(properties, 1, &clDevice, NULL, NULL, &err);
 			ofLogNotice() <<  "Created OpenCL context: " << (err == CL_SUCCESS ? "SUCCESS" : "ERROR");
 		}
+#elif defined TARGET_LINUX
+        {
+            // TODO: we want to be more specific about the platform,
+            // at the moment only the first successful platform is selected.
+            cl_context_properties properties[] =
+            {
+                CL_GL_CONTEXT_KHR, (cl_context_properties)ofGetCurrentWindow()->getGLXContext(),
+                CL_GLX_DISPLAY_KHR, (cl_context_properties)ofGetCurrentWindow()->getX11Display(),
+                CL_CONTEXT_PLATFORM, (cl_context_properties)clPlatformID,
+                0
+            };
 
+            ofLogNotice() << "Using OpenCL Platform: 0x" << std::hex << clPlatformID;
+            ofLogNotice() << "Using OpenCL Device: 0x" << std::hex << clDevice;
+
+            clContext = clCreateContext(properties, 1, &clDevice, NULL, NULL, &err);
+            ofLogNotice() <<  "Created OpenCL context: " << (err == CL_SUCCESS ? "SUCCESS" : "ERROR");
+        }
 #endif
+
 		if(clContext == NULL) {
 			ofLog(OF_LOG_ERROR, "Error creating clContext.");
 			assert(err != CL_INVALID_PLATFORM);
