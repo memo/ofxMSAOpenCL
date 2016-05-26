@@ -34,11 +34,9 @@ namespace msa {
 		
 		cl_int err;
 		clMemObject= clCreateFromGLBuffer(pOpenCL->getContext(), memFlags, glBufferObject, &err);
-		assert(err != CL_INVALID_CONTEXT);
-		assert(err != CL_INVALID_VALUE);
-		assert(err != CL_INVALID_GL_OBJECT);
-		assert(err != CL_OUT_OF_HOST_MEMORY);
-		assert(err == CL_SUCCESS);
+		if(err != CL_SUCCESS){
+			throw runtime_error(getCLErrorString(err));
+		}
 		assert(clMemObject);	
 
 		hasCorrespondingGLObject = true;
@@ -49,7 +47,9 @@ namespace msa {
 		if (hasCorrespondingGLObject) lockGLObject();
 		cl_int err = clEnqueueReadBuffer(pOpenCL->getQueue(), clMemObject, blockingRead, startOffsetBytes, numberOfBytes, dataPtr, 0, NULL, NULL);
 		if (hasCorrespondingGLObject) unlockGLObject();
-		assert(err == CL_SUCCESS);
+		if(err != CL_SUCCESS){
+			throw runtime_error(getCLErrorString(err));
+		}
 	}
 	
 	
@@ -57,21 +57,27 @@ namespace msa {
 		if (hasCorrespondingGLObject) lockGLObject();
 		cl_int err = clEnqueueWriteBuffer(pOpenCL->getQueue(), clMemObject, CL_TRUE, startOffsetBytes, numberOfBytes, dataPtr, 0, NULL, NULL);
 		if (hasCorrespondingGLObject) unlockGLObject();
-		assert(err == CL_SUCCESS);
+		if(err != CL_SUCCESS){
+			throw runtime_error(getCLErrorString(err));
+		}
 	}
 
 	void OpenCLBuffer::writeAsync(void *dataPtr, int startOffsetBytes, int numberOfBytes, cl_event& writeEvent_) {
 		if (hasCorrespondingGLObject) lockGLObject();
 		cl_int err = clEnqueueWriteBuffer(pOpenCL->getQueue(), clMemObject, CL_FALSE, startOffsetBytes, numberOfBytes, dataPtr, 0, NULL, &writeEvent_);
 		if (hasCorrespondingGLObject) unlockGLObject();
-		assert(err == CL_SUCCESS);
+		if(err != CL_SUCCESS){
+			throw runtime_error(getCLErrorString(err));
+		}
 	}
 	
 	void OpenCLBuffer::copyFrom(OpenCLBuffer &srcBuffer, int srcOffsetBytes, int dstOffsetBytes, int numberOfBytes) {
 		if (hasCorrespondingGLObject) lockGLObject();
 		cl_int err = clEnqueueCopyBuffer(pOpenCL->getQueue(), srcBuffer.getCLMem(), clMemObject, srcOffsetBytes, dstOffsetBytes, numberOfBytes, 0, NULL, NULL);
 		if (hasCorrespondingGLObject) unlockGLObject();
-		assert(err == CL_SUCCESS);
+		if(err != CL_SUCCESS){
+			throw runtime_error(getCLErrorString(err));
+		}
 	}
 	
 	
