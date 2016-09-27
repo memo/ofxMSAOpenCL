@@ -118,11 +118,11 @@ namespace msa {
 
 	// ----------------------------------------------------------------------
 
-	void OpenCLKernel::run(int numDimensions, size_t *globalSize, size_t *localSize, cl_uint eventsInWaitList_, const cl_event* eventWaitList_, cl_event* runEvent_) {
+	void OpenCLKernel::run(int numDimensions, size_t *globalSize, const size_t *offset,  size_t *localSize, cl_uint eventsInWaitList_, const cl_event* eventWaitList_, cl_event* runEvent_) {
 		if (clKernel== NULL) return;
 		cl_int err=CL_SUCCESS;
 		bindOpenGLInterOp();
-		err = clEnqueueNDRangeKernel(pOpenCL->getQueue(), clKernel, numDimensions, NULL, globalSize, localSize, eventsInWaitList_, eventWaitList_, runEvent_);
+		err = clEnqueueNDRangeKernel(pOpenCL->getQueue(), clKernel, numDimensions, offset, globalSize, localSize, eventsInWaitList_, eventWaitList_, runEvent_);
 		if (err != CL_SUCCESS) {
 			ofLogNotice() << getCLErrorString(err);
 		}
@@ -142,7 +142,7 @@ namespace msa {
 
 	// ----------------------------------------------------------------------
 
-	void OpenCLKernel::run1D(size_t globalSize, size_t localSize) {
+	void OpenCLKernel::run1D(size_t globalSize, const size_t offset, size_t localSize) {
 		size_t globalSizes[1];
 
 //		if (localSize > pOpenCL->info.maxWorkGroupSize) {
@@ -154,16 +154,16 @@ namespace msa {
 			size_t localSizes[1];
 			localSizes[0] = localSize;
 			globalSizes[0] = roundToNextMultipleOf(globalSize,localSize);	// make sure global size is a multiple of local size
-			run(1, globalSizes, localSizes);
+			run(1, globalSizes, &offset,localSizes);
 		} else {
 			globalSizes[0] = globalSize;
-			run(1, globalSizes, NULL);
+			run(1, globalSizes, &offset ,NULL);
 		}
 	}
 
 	// ----------------------------------------------------------------------
 
-	void OpenCLKernel::run2D(size_t globalSizeX, size_t globalSizeY, size_t localSizeX, size_t localSizeY, cl_uint eventsInWaitList_ , const cl_event* eventWaitList_, cl_event* runEvent_ ) {
+	void OpenCLKernel::run2D(size_t globalSizeX, size_t globalSizeY, const size_t offset, size_t localSizeX, size_t localSizeY, cl_uint eventsInWaitList_ , const cl_event* eventWaitList_, cl_event* runEvent_ ) {
 		// tig: make sure localSizeX * localSizeY <= maxWorkGroupSize
 //		if (localSizeX * localSizeY > pOpenCL->info.maxWorkGroupSize) {
 //			ofLogError() << "Could not run OpenCL 2D kernel at workgroup size: " << localSizeY * localSizeX << ". Max supported local (=workgroup) size: " << pOpenCL->info.maxWorkGroupSize;
@@ -176,12 +176,13 @@ namespace msa {
 			size_t localSizes[2];
 			localSizes[0] = localSizeX;
 			localSizes[1] = localSizeY;
-			run(2, globalSizes, localSizes, eventsInWaitList_ , eventWaitList_, runEvent_);
+			run(2, globalSizes, &offset, localSizes,eventsInWaitList_ , eventWaitList_, runEvent_);
 		} else {
 			// no local size specified - let driver figure out how to break up workload.
 			globalSizes[0] = globalSizeX;
 			globalSizes[1] = globalSizeY;
-			run(2, globalSizes, NULL, eventsInWaitList_ , eventWaitList_, runEvent_);
+            run(2, globalSizes, &offset, NULL, eventsInWaitList_ , eventWaitList_, runEvent_);
+
 		}
 		/// note: if runEvent_ contains a cl_event pointer other than NULL,
 		/// runEvent_ will be set to a unique identifier to this kernel execution instance
@@ -190,7 +191,7 @@ namespace msa {
 
 	// ----------------------------------------------------------------------
 
-	void OpenCLKernel::run3D(size_t globalSizeX, size_t globalSizeY, size_t globalSizeZ, size_t localSizeX, size_t localSizeY, size_t localSizeZ) {
+	void OpenCLKernel::run3D(size_t globalSizeX, size_t globalSizeY, size_t globalSizeZ, const size_t offset, size_t localSizeX, size_t localSizeY, size_t localSizeZ) {
 		// tig: make sure localSizeX * localSizeY * localSizeZ <= maxWorkGroupSize
 //		if (localSizeX * localSizeY * localSizeZ > pOpenCL->info.maxWorkGroupSize) {
 //			ofLogError() << "Could not run OpenCL 3D kernel at workgroup size: " << localSizeZ * localSizeY * localSizeX << ". Max supported local (=workgroup) size: " << pOpenCL->info.maxWorkGroupSize;
@@ -205,13 +206,13 @@ namespace msa {
 			localSizes[0] = localSizeX;
 			localSizes[1] = localSizeY;
 			localSizes[2] = localSizeZ;
-			run(3, globalSizes, localSizes);
+			run(3, globalSizes, &offset, localSizes);
 		} else {
             // no local size specified - let driver figure out how to break up workload.
             globalSizes[0] = globalSizeX;
             globalSizes[1] = globalSizeY;
             globalSizes[2] = globalSizeZ;
-			run(3, globalSizes, NULL);
+			run(3, globalSizes, &offset, NULL);
 		}
 	}
 
