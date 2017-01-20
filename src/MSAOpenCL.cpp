@@ -109,8 +109,8 @@ namespace msa {
             // at the moment only the first successful platform is selected.
             cl_context_properties properties[] =
             {
-                CL_GL_CONTEXT_KHR, (cl_context_properties)ofGetCurrentWindow()->getGLXContext(),
-                CL_GLX_DISPLAY_KHR, (cl_context_properties)ofGetCurrentWindow()->getX11Display(),
+                CL_GL_CONTEXT_KHR, (cl_context_properties)ofGetWindowPtr()->getGLXContext(),
+                CL_GLX_DISPLAY_KHR, (cl_context_properties)ofGetWindowPtr()->getX11Display(),
                 CL_CONTEXT_PLATFORM, (cl_context_properties)clPlatformID,
                 0
             };
