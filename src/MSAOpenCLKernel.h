@@ -40,6 +40,7 @@ namespace msa {
 		bool setArg(int argNumber, ofVec2f v) { return setArg(argNumber, &v, sizeof(v)); }
 		bool setArg(int argNumber, ofVec3f v) { return setArg(argNumber, &v, sizeof(v)); }
 		bool setArg(int argNumber, ofVec4f v) { return setArg(argNumber, &v, sizeof(v)); }
+		bool setArg(int argNumber, ofFloatColor c) { return setArg(argNumber, &c, sizeof(c)); }
 		bool setArg(int argNumber, cl_mem v) { return setArg(argNumber, &v, sizeof(v)); }
 		bool setArg(int argNumber, OpenCLMemoryObject& memObject);
 
