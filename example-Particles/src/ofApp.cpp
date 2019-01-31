@@ -116,3 +116,8 @@ void ofApp::draw(){
 	string info = "fps: " + ofToString(ofGetFrameRate()) + "\nnumber of particles: " + ofToString(NUM_PARTICLES);
 	ofDrawBitmapString(info, 20, 20);
 }
+
+//--------------------------------------------------------------
+void ofApp::keyPressed(int key){
+    ofToggleFullscreen();
+}
